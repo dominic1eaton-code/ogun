@@ -14,6 +14,8 @@ An Operating System for Independent Workers, entreprenuers, freelancers, founder
 
 ogun os home website: https://ogun.eatondo000.workers.dev/
 
+ogun os testing prototype: https://ogun-prototype.eatondo000.workers.dev/
+
 The primary ogun os repository is: https://gitlab.com/ogun-foundation/ogun
 
 * **NOTE**: this repository is mirrored on Github and Codeberg:
