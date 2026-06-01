@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/badge/version-0.1.0--beta-orange?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/releases)
+[![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/releases)
 [![Status](https://img.shields.io/badge/status-beta--upcoming-yellow?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/blob/main/CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/blob/main/LICENSE.md)
 [![Platform](https://img.shields.io/badge/platform-Windows%20x64-informational?style=flat-square)](https://gitlab.com/ogun-foundation/ogun)
