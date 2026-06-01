@@ -1,6 +1,6 @@
 [submodule "bula"]
 	path = bula
-	url = git@gitlab.com-1:ogun-foundation/bula.git
+	url = git@gitlab.com:ogun-foundation/bula.git
 [submodule "elegua"]
 	path = elegua
 	url = git@gitlab.com-1:ogun-foundation/elegua.git
