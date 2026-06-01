@@ -1,8 +1,3 @@
-# The Ogun Operating System
-
-An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, gig workers, consultants, etc... written in Rust.
----
-
 [![Version](https://img.shields.io/badge/version-0.1.0--beta-orange?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/releases)
 [![Status](https://img.shields.io/badge/status-beta--upcoming-yellow?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/blob/main/CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/blob/main/LICENSE.md)
@@ -12,6 +7,10 @@ An Operating System for Independent Workers, entreprenuers, freelancers, founder
 [![Build](https://img.shields.io/gitlab/pipeline-status/ogun-foundation/ogun?branch=main&style=flat-square&logo=gitlab)](https://gitlab.com/ogun-foundation/ogun/-/pipelines)
 [![Issues](https://img.shields.io/gitlab/issues/open/ogun-foundation/ogun?style=flat-square&logo=gitlab)](https://gitlab.com/ogun-foundation/ogun/-/issues)
 [![Maintainer](https://img.shields.io/badge/maintainer-%40eatondo-lightgrey?style=flat-square)](https://gitlab.com/eatondo)
+
+# The Ogun Operating System
+
+An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, gig workers, consultants, etc... written in Rust.
 
 ---
 
@@ -24,7 +23,6 @@ This umbrella repository collects the implementation workspaces, product documen
 ## Contents
 
 - [The Ogun Operating System](#the-ogun-operating-system)
-  - [An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, gig workers, consultants, etc... written in Rust.](#an-operating-system-for-independent-workers-entreprenuers-freelancers-founders-contractors-gig-workers-consultants-etc-written-in-rust)
   - [Contents](#contents)
   - [Status](#status)
   - [What ogun OS Is](#what-ogun-os-is)
