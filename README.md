@@ -525,8 +525,6 @@ https://jaku.eatondo000.workers.dev/
 ## oya system development platform
 https://oya.eatondo000.workers.dev/
 
-https://jaku.eatondo000.workers.dev/
-
 ## bula UIUX development platform
 https://bula.eatondo000.workers.dev/
 
