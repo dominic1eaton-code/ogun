@@ -12,6 +12,12 @@
 
 An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, coaches, gig workers, consultants, etc... written in Rust.
 
+The primary ogun os repository is: https://gitlab.com/ogun-foundation/ogun
+
+* **NOTE**: this repository is mirrored on Github and Codeberg:
+  * https://github.com/dominic1eaton-code/ogun
+  * https://codeberg.org/eatondo000/ogun
+
 ---
 
 **ogun OS** is a Rust-native operating-system layer for independent workers. It runs on top of an existing host operating system rather than replacing it, then presents a signed, capability-gated, workspace-oriented runtime with its own boot chain, virtual devices, kernel subsystems, SDKs, applications, tools, and release artifacts.
