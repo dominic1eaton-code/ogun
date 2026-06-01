@@ -1,0 +1,40 @@
+[workspace]
+resolver = "3"
+members = [
+  # Shared protocol, storage, and support crates.
+  "bula",
+  "elegua",
+  "jaku",
+  "oya",
+  "rustydb",
+
+  # Ogun OS workspaces pulled in through git submodules.
+  "ogun-apps/src/*",
+  "ogun-components/src/apps/tier-2/*",
+  "ogun-components/src/apps/tier-3/*",
+  "ogun-components/src/drivers/*",
+  "ogun-components/src/hosts/*",
+  "ogun-components/src/services/*",
+  "ogun-devices/src/*",
+  "ogun-os/src/clients/*",
+  "ogun-os/src/servers/*",
+  "ogun-runtime/src/*",
+  "ogun-sdk/src/*",
+  "ogun-tools/src/ogun-image-tool/src-tauri",
+  "ogun-tools/src/ogun-setup/src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0-alpha"
+edition = "2024"
+license = "GPL-3.0"
+authors = ["Project Ogun"]
+publish = false
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
