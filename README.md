@@ -10,7 +10,7 @@
 
 # The Ogun Operating System
 
-An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, gig workers, consultants, etc... written in Rust.
+An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, coaches, gig workers, consultants, etc... written in Rust.
 
 ---
 
