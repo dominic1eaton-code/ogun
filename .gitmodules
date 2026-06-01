@@ -3,49 +3,49 @@
 	url = git@gitlab.com:ogun-foundation/bula.git
 [submodule "elegua"]
 	path = elegua
-	url = git@gitlab.com-1:ogun-foundation/elegua.git
+	url = git@gitlab.com:ogun-foundation/elegua.git
 [submodule "jaku"]
 	path = jaku
-	url = git@gitlab.com-1:ogun-foundation/jaku.git
+	url = git@gitlab.com:ogun-foundation/jaku.git
 [submodule "ogun-apps"]
 	path = ogun-apps
-	url = git@gitlab.com-1:ogun-foundation/ogun-apps.git
+	url = git@gitlab.com:ogun-foundation/ogun-apps.git
 [submodule "ogun-artifacts"]
 	path = ogun-artifacts
-	url = git@gitlab.com-1:ogun-foundation/ogun-artifacts.git
+	url = git@gitlab.com:ogun-foundation/ogun-artifacts.git
 [submodule "ogun-components"]
 	path = ogun-components
-	url = git@gitlab.com-1:ogun-foundation/ogun-components.git
+	url = git@gitlab.com:ogun-foundation/ogun-components.git
 [submodule "ogun-config"]
 	path = ogun-config
-	url = git@gitlab.com-1:ogun-foundation/ogun-config.git
+	url = git@gitlab.com:ogun-foundation/ogun-config.git
 [submodule "ogun-devices"]
 	path = ogun-devices
-	url = git@gitlab.com-1:ogun-foundation/ogun-devices.git
+	url = git@gitlab.com:ogun-foundation/ogun-devices.git
 [submodule "ogun-docs"]
 	path = ogun-docs
-	url = git@gitlab.com-1:ogun-foundation/ogun-docs.git
+	url = git@gitlab.com:ogun-foundation/ogun-docs.git
 [submodule "ogun-os"]
 	path = ogun-os
-	url = git@gitlab.com-1:ogun-foundation/ogun-os.git
+	url = git@gitlab.com:ogun-foundation/ogun-os.git
 [submodule "ogun-runtime"]
 	path = ogun-runtime
-	url = git@gitlab.com-1:ogun-foundation/ogun-runtime.git
+	url = git@gitlab.com:ogun-foundation/ogun-runtime.git
 [submodule "ogun-sites"]
 	path = ogun-sites
-	url = git@gitlab.com-1:ogun-foundation/ogun-sites.git
+	url = git@gitlab.com:ogun-foundation/ogun-sites.git
 [submodule "ogun-test-features"]
 	path = ogun-test-features
-	url = git@gitlab.com-1:ogun-foundation/ogun-test-features.git
+	url = git@gitlab.com:ogun-foundation/ogun-test-features.git
 [submodule "ogun-tools"]
 	path = ogun-tools
-	url = git@gitlab.com-1:ogun-foundation/ogun-tools.git
+	url = git@gitlab.com:ogun-foundation/ogun-tools.git
 [submodule "oya"]
 	path = oya
-	url = git@gitlab.com-1:ogun-foundation/oya.git
+	url = git@gitlab.com:ogun-foundation/oya.git
 [submodule "rustydb"]
 	path = rustydb
-	url = git@gitlab.com-1:ogun-foundation/rustydb.git
+	url = git@gitlab.com:ogun-foundation/rustydb.git
 [submodule "ogun-sdk"]
 	path = ogun-sdk
-	url = git@gitlab.com-1:ogun-foundation/ogun-sdk.git
+	url = git@gitlab.com:ogun-foundation/ogun-sdk.git
