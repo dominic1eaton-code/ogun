@@ -46,3 +46,6 @@
 [submodule "rustydb"]
 	path = rustydb
 	url = git@gitlab.com-1:ogun-foundation/rustydb.git
+[submodule "ogun-sdk"]
+	path = ogun-sdk
+	url = git@gitlab.com-1:ogun-foundation/ogun-sdk.git
