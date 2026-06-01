@@ -1,4 +1,4 @@
-# ogun OS
+# Ogun Operating System for Independent Workers
 
 [![Version](https://img.shields.io/badge/version-0.1.0--beta-orange?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/releases)
 [![Status](https://img.shields.io/badge/status-beta--upcoming-yellow?style=flat-square)](https://gitlab.com/ogun-foundation/ogun/-/blob/main/CHANGELOG.md)
@@ -20,7 +20,7 @@ This umbrella repository collects the implementation workspaces, product documen
 
 ## Contents
 
-- [ogun OS](#ogun-os)
+- [Ogun Operating System for Independent Workers](#ogun-operating-system-for-independent-workers)
   - [Contents](#contents)
   - [Status](#status)
   - [What ogun OS Is](#what-ogun-os-is)
