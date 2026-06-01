@@ -58,6 +58,13 @@ This umbrella repository collects the implementation workspaces, product documen
   - [Documentation](#documentation)
   - [Contributing](#contributing)
   - [License](#license)
+- [Ogun Prototype and tooling sites](#ogun-prototype-and-tooling-sites)
+  - [prototype](#prototype)
+  - [ogun os documentation](#ogun-os-documentation)
+  - [ogun home site](#ogun-home-site)
+  - [jaku devops platform](#jaku-devops-platform)
+  - [oya system development platform](#oya-system-development-platform)
+  - [bula UIUX development platform](#bula-uiux-development-platform)
 
 ---
 
@@ -498,6 +505,30 @@ the Free Software Foundation, either version 3 of the License, or
 ```
 
 See [`LICENSE.md`](LICENSE.md) for the full license text.
+
+---
+
+# Ogun Prototype and tooling sites
+
+## prototype
+https://ogun-prototype.eatondo000.workers.dev/
+
+## ogun os documentation
+https://ogun-docs.eatondo000.workers.dev/
+
+## ogun home site
+https://ogun.eatondo000.workers.dev/
+
+## jaku devops platform
+https://jaku.eatondo000.workers.dev/
+
+## oya system development platform
+https://oya.eatondo000.workers.dev/
+
+https://jaku.eatondo000.workers.dev/
+
+## bula UIUX development platform
+https://bula.eatondo000.workers.dev/
 
 ---
 

@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ogun OS — App Placeholder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:         #060810;
+  --bg2:        #0b0f18;
+  --card:       #0f1520;
+  --card-hv:    #141d2a;
+  --card2:      #0c1118;
+  --border:     rgba(195,150,50,0.12);
+  --border-hv:  rgba(195,150,50,0.4);
+  --border-dim: rgba(120,120,140,0.1);
+  --gold:       #c8922a;
+  --gold-hi:    #ebb84a;
+  --gold-lo:    rgba(200,146,42,0.15);
+  --text:       #cdc3ad;
+  --text-hi:    #e8dcc8;
+  --text-dim:   #6a6050;
+  --text-dimmer:#38342e;
+  --teal:   #2eb8a0; --teal-lo: rgba(46,184,160,0.1);
+  --green:  #4ab870; --green-lo: rgba(74,184,112,0.1);
+  --amber:  #e8b84a; --amber-lo: rgba(232,184,74,0.1);
+  --blue:   #6088d8; --blue-lo: rgba(96,136,216,0.1);
+  --slate:  #8898a8; --slate-lo: rgba(136,152,168,0.1);
+  --purple: #a870e8; --purple-lo: rgba(168,112,232,0.1);
+  --cyan:   #30c8d0; --cyan-lo: rgba(48,200,208,0.1);
+  --red:    #e04830; --red-lo: rgba(224,72,48,0.1);
+  --indigo: #7060c8; --indigo-lo: rgba(112,96,200,0.1);
+  --brown:  #b87848; --brown-lo: rgba(184,120,72,0.1);
+  --lime:   #78c840; --lime-lo: rgba(120,200,64,0.1);
+  --pink:   #d860b0; --pink-lo: rgba(216,96,176,0.1);
+  --yellow: #d8c030; --yellow-lo: rgba(216,192,48,0.1);
+
+  /* Per-app accent — override by renaming/editing this file */
+  --accent:    var(--gold);
+  --accent-hi: var(--gold-hi);
+  --accent-lo: var(--gold-lo);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+}
+
+/* ── GRID BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(195,150,50,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(195,150,50,0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+/* ── RADIAL GLOW ── */
+body::after {
+  content: '';
+  position: fixed; z-index: 0; pointer-events: none;
+  top: -10%; left: 15%; width: 70%; height: 52%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(195,150,50,0.04) 0%, transparent 65%);
+}
+
+/* ── SCAN LINE OVERLAY ── */
+.scanlines {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+}
+
+/* ── LAYOUT ── */
+.shell {
+  position: relative; z-index: 1;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── TOP STATUS BAR ── */
+.status-bar {
+  height: 32px; flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 10px;
+  background: rgba(6,8,16,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); opacity: 0.6;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.3); }
+}
+.status-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.status-label .hi { color: var(--accent); }
+.status-badge {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 7px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 2px;
+  border: 1px solid var(--border);
+  color: var(--text-dimmer);
+}
+.status-badge.soon {
+  border-color: rgba(232,184,74,0.3);
+  color: var(--amber);
+  background: rgba(232,184,74,0.06);
+}
+
+/* ── MAIN SCROLL AREA ── */
+.main {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 32px 36px 48px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-dimmer) transparent;
+}
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-thumb { background: var(--text-dimmer); border-radius: 2px; }
+
+/* ── HERO ── */
+.hero {
+  display: flex; align-items: flex-start; gap: 28px;
+  margin-bottom: 36px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  animation: fadeUp 0.5s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-icon {
+  width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  background: var(--accent-lo);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 32px var(--accent-lo), inset 0 1px 0 rgba(255,255,255,0.04);
+  position: relative; overflow: hidden;
+}
+.hero-icon::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 60%);
+}
+
+.hero-body { flex: 1; }
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 6px;
+}
+.hero-title {
+  font-size: 30px; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--text-hi); line-height: 1; margin-bottom: 10px;
+}
+.hero-title em { color: var(--accent); font-style: normal; }
+.hero-desc {
+  font-size: 13px; color: var(--text-dim); line-height: 1.7;
+  max-width: 540px;
+}
+.hero-tags {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px;
+}
+.hero-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 3px;
+  border: 1px solid var(--border);
+  color: var(--text-dim); background: var(--card2);
+}
+.hero-tag.accent {
+  border-color: rgba(195,150,50,0.3);
+  color: var(--accent); background: var(--accent-lo);
+}
+
+/* ── SECTION HEADER ── */
+.section-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+.section-line {
+  flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
+.stat-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.stat-card:hover { border-color: var(--border-hv); }
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-lo), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.stat-card:hover::before { opacity: 1; }
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 22px; font-weight: 800; color: var(--text-hi);
+  letter-spacing: -0.02em; line-height: 1;
+}
+.stat-value.accent { color: var(--accent); }
+.stat-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--text-dimmer); margin-top: 4px;
+}
+.stat-sub.up   { color: var(--green); }
+.stat-sub.warn { color: var(--amber); }
+
+/* ── FEATURE GRID ── */
+.feature-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.5s ease 0.15s both;
+}
+.feature-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px 18px 16px;
+  cursor: default; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.feature-card:hover {
+  border-color: var(--border-hv);
+  background: var(--card-hv);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.feature-card-badge {
+  position: absolute; top: 12px; right: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 2px;
+  border: 1px solid rgba(232,184,74,0.3);
+  color: var(--amber); background: rgba(232,184,74,0.06);
+}
+.feature-card-badge.soon { color: var(--amber); border-color: rgba(232,184,74,0.3); background: rgba(232,184,74,0.06); }
+.feature-card-badge.planned { color: var(--text-dimmer); border-color: var(--border); background: transparent; }
+.feature-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 12px;
+  background: var(--card2); border: 1px solid var(--border);
+}
+.feature-name {
+  font-size: 12px; font-weight: 700; color: var(--text-hi);
+  margin-bottom: 5px; letter-spacing: -0.01em;
+}
+.feature-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; color: var(--text-dim); line-height: 1.6;
+}
+
+/* ── BOTTOM TWO-COL ── */
+.two-col {
+  display: grid; grid-template-columns: 1fr 300px; gap: 12px;
+  animation: fadeUp 0.5s ease 0.2s both;
+}
+
+/* ── ACTIVITY LOG ── */
+.panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.panel-head {
+  padding: 13px 18px 11px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.panel-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 7px; color: var(--text-dimmer);
+  border: 1px solid var(--border); border-radius: 2px;
+  padding: 1px 6px;
+}
+.panel-body { padding: 4px 0; }
+
+.log-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 18px;
+  border-bottom: 1px solid var(--border-dim);
+  transition: background 0.1s;
+}
+.log-row:last-child { border-bottom: none; }
+.log-row:hover { background: rgba(255,255,255,0.015); }
+.log-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 5px;
+}
+.log-content { flex: 1; }
+.log-text {
+  font-size: 11px; color: var(--text); line-height: 1.5;
+}
+.log-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--text-dimmer); margin-top: 2px;
+}
+.log-time {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--text-dimmer); flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* ── ROADMAP PANEL ── */
+.roadmap-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border-dim);
+  transition: background 0.1s;
+}
+.roadmap-item:last-child { border-bottom: none; }
+.roadmap-item:hover { background: rgba(255,255,255,0.015); }
+.roadmap-phase {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 8px; font-weight: 700;
+}
+.roadmap-phase.done    { background: var(--green-lo);  border: 1px solid rgba(74,184,112,0.35);  color: var(--green);  }
+.roadmap-phase.active  { background: var(--accent-lo); border: 1px solid var(--border-hv);        color: var(--accent); }
+.roadmap-phase.planned { background: var(--card2);     border: 1px solid var(--border);           color: var(--text-dimmer); }
+.roadmap-body { flex: 1; }
+.roadmap-name {
+  font-size: 11px; font-weight: 600; color: var(--text);
+  margin-bottom: 2px;
+}
+.roadmap-name.done    { color: var(--text-dim); text-decoration: line-through; text-decoration-color: var(--text-dimmer); }
+.roadmap-name.active  { color: var(--text-hi); }
+.roadmap-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--text-dimmer); line-height: 1.4;
+}
+.roadmap-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 7px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 2px; flex-shrink: 0;
+}
+.roadmap-tag.done    { color: var(--green);  border: 1px solid rgba(74,184,112,0.25); background: var(--green-lo);  }
+.roadmap-tag.active  { color: var(--amber);  border: 1px solid rgba(232,184,74,0.25); background: var(--amber-lo);  }
+.roadmap-tag.planned { color: var(--text-dimmer); border: 1px solid var(--border); background: transparent; }
+
+/* ── PROGRESS TICKER ── */
+.ticker {
+  margin-top: 24px; padding: 16px 20px;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; gap: 16px;
+  animation: fadeUp 0.5s ease 0.25s both;
+}
+.ticker-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-dim); flex-shrink: 0;
+}
+.ticker-track {
+  flex: 1; height: 4px; background: var(--card);
+  border-radius: 2px; overflow: hidden;
+}
+.ticker-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hi));
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ticker-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; color: var(--accent);
+  flex-shrink: 0; min-width: 36px; text-align: right;
+}
+.ticker-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--text-dimmer); flex-shrink: 0;
+}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar {
+  flex-shrink: 0; height: 36px;
+  display: flex; align-items: center; padding: 0 20px; gap: 12px;
+  background: rgba(6,8,16,0.96); border-top: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+}
+.bottom-bar-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--text-dimmer); letter-spacing: 0.08em;
+}
+.bottom-bar-text .accent { color: var(--accent); }
+.bottom-bar-sep { width: 1px; height: 14px; background: var(--border); }
+.bottom-bar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.bb-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+/* ── SKELETON SHIMMER for empty state ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--card2) 25%, var(--card-hv) 50%, var(--card2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 3px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── COMING SOON WATERMARK ── */
+.watermark {
+  position: fixed; bottom: 52px; right: 28px; z-index: 0;
+  font-family: 'Syne', sans-serif;
+  font-size: 72px; font-weight: 800; letter-spacing: -0.04em;
+  color: rgba(195,150,50,0.025);
+  pointer-events: none; user-select: none;
+  line-height: 1;
+}
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<div class="shell">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <div class="status-label">ogun OS · <span class="hi" id="app-name-bar">module</span> · seed prototype</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <div class="status-badge soon">coming soon</div>
+      <div class="status-badge" style="color:var(--text-dimmer);">v0.1</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-icon" id="hero-icon">⬡</div>
+      <div class="hero-body">
+        <div class="hero-eyebrow" id="hero-eyebrow">ogun OS · module · early access</div>
+        <div class="hero-title" id="hero-title">mod<em>ule</em></div>
+        <div class="hero-desc" id="hero-desc">
+          This module is currently in active development and will be available in a future release of ogun OS. Core architecture is finalized — interface and data layers are being built out.
+        </div>
+        <div class="hero-tags">
+          <div class="hero-tag accent" id="hero-tag-type">module</div>
+          <div class="hero-tag">seed · v0.1</div>
+          <div class="hero-tag">in development</div>
+          <div class="hero-tag" id="hero-tag-eta">eta · q3 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="section-head">
+      <div class="section-eyebrow">overview</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="stats-row" id="stats-row">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- FEATURE GRID -->
+    <div class="section-head">
+      <div class="section-eyebrow">planned capabilities</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="feature-grid" id="feature-grid">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- BOTTOM TWO-COL -->
+    <div class="two-col">
+
+      <!-- ACTIVITY LOG -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-label">build log</div>
+          <div class="panel-badge" id="log-badge">0 entries</div>
+        </div>
+        <div class="panel-body" id="log-body">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- ROADMAP -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-label">roadmap</div>
+          <div class="panel-badge">q2–q4 2026</div>
+        </div>
+        <div class="panel-body" id="roadmap-body">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PROGRESS TICKER -->
+    <div class="ticker">
+      <div class="ticker-label">build progress</div>
+      <div class="ticker-track">
+        <div class="ticker-fill" id="ticker-fill"></div>
+      </div>
+      <div class="ticker-pct" id="ticker-pct">0%</div>
+      <div class="ticker-note" id="ticker-note">architecture · design · data layer</div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="bb-dot" id="bb-dot" style="background:var(--accent);"></div>
+    <div class="bottom-bar-text">ogun OS · <span class="accent" id="bb-name">module</span></div>
+    <div class="bottom-bar-sep"></div>
+    <div class="bottom-bar-text">independent work operating system</div>
+    <div class="bottom-bar-right">
+      <div class="bottom-bar-text">seed prototype · in development</div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<div class="watermark" id="watermark">soon</div>
+
+<script>
+// ── APP REGISTRY ──────────────────────────────────────────────
+// Each app can override: name, eyebrow, desc, icon, accentVar, type, eta, stats, features, logs, roadmap, progress
+const APP_REGISTRY = {
+  apapo: {
+    name: 'apapo', title: 'apa<em>po</em>',
+    eyebrow: 'ogun OS · hypergrid substrate · distributed runtime',
+    desc: 'The foundational layer of ogun OS. Apapo is the distributed hypergrid that connects all modules — identity, state, compute, and data — into a unified operating fabric for independent work.',
+    icon: '⬡', accentVar: '--gold', type: 'substrate', eta: 'q4 2026',
+    stats: [
+      { label: 'modules wired',   value: '14',    sub: 'across ogun OS',   cls: 'accent' },
+      { label: 'data streams',    value: '—',     sub: 'pending routing',  cls: '' },
+      { label: 'node health',     value: '100%',  sub: '↑ all systems',    cls: 'accent', subcls: 'up' },
+      { label: 'runtime status',  value: 'seed',  sub: 'architecture phase',cls: '' },
+    ],
+    features: [
+      { icon: '◈', name: 'Hypergrid Routing',   desc: 'cross-module state and event routing with real-time sync across all ogun layers',             badge: 'soon',    badgeCls: 'soon' },
+      { icon: '⬡', name: 'Distributed Runtime', desc: 'resilient compute layer — run workloads across nodes with automatic failover and rebalancing', badge: 'planned', badgeCls: 'planned' },
+      { icon: '◎', name: 'Identity Fabric',      desc: 'single sign-on and reputation graph wired across all modules via heshima layer',              badge: 'soon',    badgeCls: 'soon' },
+      { icon: '▤', name: 'State Persistence',    desc: 'unified data store with versioning, rollback, and cross-module query access',                 badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Event Bus',            desc: 'pub/sub event infrastructure connecting agents, modules, and external integrations',          badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Developer SDK',        desc: 'build on the hypergrid — APIs, CLI tools, and manifest schema for third-party modules',       badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--green',  text: 'Core architecture finalized — hypergrid topology documented',             meta: 'architecture · milestone',    time: '2d ago' },
+      { color: '--gold',   text: 'Module registry schema v1 approved — 14 modules mapped',                  meta: 'design · schema',             time: '4d ago' },
+      { color: '--teal',   text: 'Identity fabric integration design complete with heshima layer',           meta: 'integration · heshima',       time: '6d ago' },
+      { color: '--blue',   text: 'Developer SDK scope defined — JS, Python, Rust bindings planned',         meta: 'sdk · planning',              time: '8d ago' },
+      { color: '--purple', text: 'Event bus specification drafted — pub/sub topology selected',              meta: 'infrastructure · draft',      time: '10d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Architecture design',  desc: 'topology, schema, module map',       tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Core routing layer',   desc: 'event bus, state store',             tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Identity fabric',       desc: 'heshima integration, SSO',           tag: 'q3 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Developer SDK',         desc: 'APIs, CLI, manifest validator',      tag: 'q4 2026', tagCls: 'planned' },
+      { phase: '5', cls: 'planned', name: 'Public beta',           desc: 'third-party modules, open registry', tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 22,
+  },
+
+  ayo: {
+    name: 'ayo', title: 'a<em>yo</em>',
+    eyebrow: 'ogun OS · spaces & communities · collaborative layer',
+    desc: 'Ayo is the community and spaces layer — where independent workers connect, collaborate, and build networks. Shared workspaces, group projects, and reputation-driven community features.',
+    icon: '◯', accentVar: '--teal', type: 'community', eta: 'q3 2026',
+    stats: [
+      { label: 'spaces available', value: '—',    sub: 'launching q3',    cls: '' },
+      { label: 'network nodes',    value: '—',    sub: 'pending apapo',   cls: '' },
+      { label: 'community status', value: 'beta', sub: 'early access',    cls: 'accent' },
+      { label: 'integrations',     value: '6',    sub: 'planned',         cls: '' },
+    ],
+    features: [
+      { icon: '◯', name: 'Shared Spaces',       desc: 'persistent collaborative workspaces — invite workers, assign roles, share files and context', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◉', name: 'Reputation Graph',    desc: 'trust scores, skill signals, and peer endorsements wired through heshima identity layer',     badge: 'soon',    badgeCls: 'soon' },
+      { icon: '⬡', name: 'Community Projects',  desc: 'multi-contributor projects with shared pipelines, milestones, and revenue splits',            badge: 'planned', badgeCls: 'planned' },
+      { icon: '◈', name: 'Broadcasts',          desc: 'publish updates, releases, and announcements to your follower network',                        badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Knowledge Commons',   desc: 'community-curated knowledge base — wikis, templates, playbooks, and guides',                   badge: 'planned', badgeCls: 'planned' },
+      { icon: '◎', name: 'Signal Matching',     desc: 'find collaborators by skill, availability, and project type using qala intelligence',          badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--teal',   text: 'Spaces data model v1 drafted — roles, permissions, and membership defined', meta: 'design · spaces',         time: '3d ago' },
+      { color: '--green',  text: 'Reputation graph schema aligned with heshima identity layer',               meta: 'integration · heshima',   time: '5d ago' },
+      { color: '--gold',   text: 'Community project revenue-split mechanism scoped',                          meta: 'design · finance',        time: '7d ago' },
+      { color: '--blue',   text: 'Signal matching algorithm spec reviewed with qala team',                    meta: 'integration · qala',      time: '9d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Data model design',  desc: 'spaces, members, roles',     tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Core spaces UI',     desc: 'create, join, manage',        tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Reputation graph',   desc: 'heshima integration',         tag: 'q3 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Community projects', desc: 'multi-worker pipelines',      tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 28,
+  },
+
+  dongo: {
+    name: 'dongo', title: 'don<em>go</em>',
+    eyebrow: 'ogun OS · finance & accounting · tax layer',
+    desc: 'Dongo is the accounting and tax layer for independent workers. Automated bookkeeping, tax estimation, financial reporting, and multi-jurisdiction compliance — all wired to kogi wallet.',
+    icon: '₦', accentVar: '--green', type: 'finance', eta: 'q2 2026',
+    stats: [
+      { label: 'tax jurisdictions', value: '—',    sub: 'configuring',      cls: '' },
+      { label: 'categories mapped', value: '42',   sub: 'expense taxonomy', cls: 'accent' },
+      { label: 'kogi sync',         value: 'live', sub: '↑ active link',    cls: 'accent', subcls: 'up' },
+      { label: 'report templates',  value: '8',    sub: 'in design',        cls: '' },
+    ],
+    features: [
+      { icon: '₦', name: 'Auto-Bookkeeping',    desc: 'categorize every transaction automatically — income, expenses, reimbursements across all enterprises', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Tax Estimation',      desc: 'real-time quarterly and annual tax estimates across multiple jurisdictions with rate lookup',           badge: 'soon',    badgeCls: 'soon' },
+      { icon: '▤', name: 'P&L Reports',         desc: 'profit & loss, cash flow, and balance sheet reports — per enterprise and consolidated',                badge: 'planned', badgeCls: 'planned' },
+      { icon: '◈', name: 'Expense Intelligence', desc: 'AI-assisted expense categorization with deductibility flagging and audit trail',                      badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Invoice Matching',    desc: 'automatically reconcile kogi invoices with received payments and bank entries',                        badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Export & Filing',     desc: 'export tax-ready reports and integrate with external accountants or filing tools',                     badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--green',  text: 'Expense taxonomy v1 finalized — 42 categories with deductibility flags',   meta: 'design · taxonomy',    time: '1d ago' },
+      { color: '--gold',   text: 'Kogi wallet sync pipeline tested in staging environment',                   meta: 'integration · kogi',   time: '3d ago' },
+      { color: '--teal',   text: 'Tax estimation engine scoped for US, UK, and NG jurisdictions',             meta: 'design · tax',         time: '5d ago' },
+      { color: '--blue',   text: 'P&L report template set reviewed — 8 templates approved',                  meta: 'design · reports',     time: '7d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Kogi integration',   desc: 'wallet sync, transaction feed',  tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Auto-bookkeeping',   desc: 'categorization engine',          tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Tax estimation',     desc: 'multi-jurisdiction rates',        tag: 'q2 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Reporting suite',    desc: 'P&L, cashflow, balance sheet',   tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 35,
+  },
+
+  heshima: {
+    name: 'heshima', title: 'hesh<em>ima</em>',
+    eyebrow: 'ogun OS · identity management · credentials & reputation',
+    desc: 'Heshima is the identity and reputation layer — KYC verification, credential management, passkeys, and the trust graph that powers permissions across all ogun OS modules.',
+    icon: '◈', accentVar: '--blue', type: 'identity', eta: 'q2 2026',
+    stats: [
+      { label: 'identity verified', value: '✓',    sub: 'KYC active',        cls: 'accent', subcls: 'up' },
+      { label: 'credentials',       value: '3',    sub: 'API keys active',   cls: '' },
+      { label: 'trust score',       value: '94',   sub: '↑ strong standing', cls: 'accent', subcls: 'up' },
+      { label: 'passkeys',          value: '1',    sub: 'device registered', cls: '' },
+    ],
+    features: [
+      { icon: '◈', name: 'KYC & Verification',  desc: 'identity verification with document scanning, liveness check, and cross-border compliance',       badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◉', name: 'Reputation Graph',     desc: 'multi-dimensional trust score built from transaction history, reviews, and verified credentials', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Passkey & WebAuthn',   desc: 'hardware key and device biometric authentication — phishing-resistant login across ogun OS',     badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Credential Wallet',    desc: 'store and present verifiable credentials — certifications, licenses, and proof-of-work records', badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Permission Mesh',      desc: 'fine-grained cross-module permissions — control what agents, apps, and collaborators can access', badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Audit Log',            desc: 'immutable record of every identity action — logins, credential changes, access grants, revokes', badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--blue',   text: 'KYC pipeline integrated with identity verification provider',                meta: 'integration · kyc',      time: '2d ago' },
+      { color: '--green',  text: 'Reputation score algorithm v2 documented — 8 trust signals defined',        meta: 'design · trust',         time: '4d ago' },
+      { color: '--gold',   text: 'Passkey/WebAuthn spec reviewed — FIDO2 compliant implementation planned',   meta: 'security · passkey',     time: '6d ago' },
+      { color: '--purple', text: 'Permission mesh schema aligned with apapo event bus',                        meta: 'integration · apapo',    time: '8d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Basic auth system',  desc: 'password, TOTP, sessions',       tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'KYC & reputation',   desc: 'verification, trust score',      tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Passkey / WebAuthn', desc: 'FIDO2, hardware keys',           tag: 'q2 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Permission mesh',    desc: 'cross-module access control',    tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 42,
+  },
+
+  kogi: {
+    name: 'kogi', title: 'ko<em>gi</em>',
+    eyebrow: 'ogun OS · digital office · clients, invoices & wallet',
+    desc: 'Kogi is the digital office management layer — CRM, invoicing, payments, and workspace for independent operators. Full financial stack for client work, retainers, and project billing.',
+    icon: '⊞', accentVar: '--slate', type: 'office', eta: 'q2 2026',
+    stats: [
+      { label: 'active clients',    value: '12',    sub: '3 retainers',       cls: 'accent' },
+      { label: 'open invoices',     value: '$8.2K', sub: '3 overdue',         cls: '', subcls: 'warn' },
+      { label: 'wallet balance',    value: '$12.8K',sub: '↑ available',       cls: 'accent', subcls: 'up' },
+      { label: 'pipeline',          value: '$34.2K',sub: '7 deals open',      cls: '' },
+    ],
+    features: [
+      { icon: '⊞', name: 'Client CRM',          desc: 'full client relationship management — contacts, history, deals, notes, and engagement tracking', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '₦', name: 'Invoicing & Payments', desc: 'create, send, and track invoices — automated reminders, partial payments, and receipt generation', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Kogi Wallet',          desc: 'multi-currency digital wallet — receive, hold, and send funds with full transaction history',     badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Pipeline Manager',     desc: 'visual sales pipeline — track deals from lead to close with stage automation and forecasting',    badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Project Desk',         desc: 'project briefs, deliverables, timelines, and file sharing — all linked to client and invoice',   badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Agent Billing',        desc: 'automate invoice generation, payment follow-up, and overdue alerts via sambara agents',          badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--slate',  text: 'CRM data model v2 finalized — contacts, deals, and pipeline stages',        meta: 'design · crm',           time: '1d ago' },
+      { color: '--green',  text: 'Wallet infrastructure integrated with stripe and local payment rails',       meta: 'integration · payments', time: '3d ago' },
+      { color: '--gold',   text: 'Invoice template engine built — 5 layouts, PDF export ready',               meta: 'build · invoicing',      time: '5d ago' },
+      { color: '--cyan',   text: 'Sambara agent hooks for billing automation defined',                         meta: 'integration · agents',   time: '7d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Wallet & payments',  desc: 'receive, send, history',         tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'CRM & invoicing',    desc: 'clients, deals, invoices',       tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Pipeline manager',   desc: 'visual deal tracking',           tag: 'q2 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Project desk',       desc: 'briefs, timelines, files',       tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 48,
+  },
+
+  qala: {
+    name: 'qala', title: 'qa<em>la</em>',
+    eyebrow: 'ogun OS · insights & observatory · market intelligence',
+    desc: 'Qala is the intelligence and observatory layer — market signals, performance analytics, KPI tracking, and AI-generated insights across all your enterprises and workstreams.',
+    icon: '◎', accentVar: '--purple', type: 'intelligence', eta: 'q2 2026',
+    stats: [
+      { label: 'active insights',  value: '12',   sub: '3 high priority',   cls: 'accent' },
+      { label: 'signals tracked',  value: '142',  sub: '↑ live scanning',   cls: 'accent', subcls: 'up' },
+      { label: 'data sources',     value: '6',    sub: 'connected',         cls: '' },
+      { label: 'MRR tracked',      value: '$6.4K',sub: '↑ 12.4% MoM',      cls: '', subcls: 'up' },
+    ],
+    features: [
+      { icon: '◎', name: 'Observatory Dashboard', desc: 'unified KPI view across all enterprises — revenue, pipeline, agent activity, and market signals', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Signal Scanner',        desc: 'real-time market signal monitoring — pricing, competitors, demand shifts, and opportunity alerts', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '⬡', name: 'AI Insights Engine',    desc: 'qala-generated insights with recommended actions — powered by sambara agent infrastructure',       badge: 'soon',    badgeCls: 'soon' },
+      { icon: '▤', name: 'Artifact Intelligence', desc: 'performance analytics for all your published content, products, and service offerings on zuri',    badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Forecast Engine',       desc: 'revenue and pipeline forecasting — scenario modeling with confidence intervals',                    badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Custom Dashboards',    desc: 'build and save custom dashboards with drag-drop chart blocks and live data widgets',                badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--purple', text: 'AI insights engine v1 spec reviewed — 12 insight types defined',             meta: 'design · insights',      time: '1d ago' },
+      { color: '--cyan',   text: 'Signal scanner pipeline tested — 142 live signals tracking',                 meta: 'build · signals',        time: '2d ago' },
+      { color: '--gold',   text: 'Observatory dashboard wireframes approved — 7 KPI blocks',                   meta: 'design · dashboard',     time: '4d ago' },
+      { color: '--green',  text: 'Forecast engine algorithm scoped with revenue modeling team',                 meta: 'design · forecast',      time: '6d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Signal infrastructure', desc: 'scanner, feed, taxonomy',      tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Observatory dashboard', desc: 'KPI blocks, live data',        tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'AI insights engine',    desc: 'generate, prioritize, act',    tag: 'q2 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Forecast engine',       desc: 'revenue, pipeline, scenarios', tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 52,
+  },
+
+  sambara: {
+    name: 'sambara', title: 'sam<em>bara</em>',
+    eyebrow: 'ogun OS · AI agent management · automation runtime',
+    desc: 'Sambara is the AI agent runtime — deploy, manage, and orchestrate autonomous agents that handle lead qualification, billing, market scanning, outreach, and any repeatable workflow.',
+    icon: '⬡', accentVar: '--cyan', type: 'agents', eta: 'q2 2026',
+    stats: [
+      { label: 'agents running',  value: '4',    sub: '2 active · 2 sched', cls: 'accent' },
+      { label: 'tasks today',     value: '247',  sub: '↑ completed',        cls: '', subcls: 'up' },
+      { label: 'autonomy level',  value: 'L3',   sub: 'supervised mode',    cls: 'accent' },
+      { label: 'queue depth',     value: '12',   sub: 'pending tasks',      cls: '' },
+    ],
+    features: [
+      { icon: '⬡', name: 'Agent Runtime',       desc: 'deploy and manage autonomous agents — assign tasks, set trust level, monitor execution and output',  badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Task Orchestration',   desc: 'chain agent tasks into complex workflows with conditional logic, loops, and human-in-the-loop gates', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Trust & Safety',       desc: 'L1–L5 autonomy model — from fully supervised to autonomous with configurable approval thresholds',   badge: 'soon',    badgeCls: 'soon' },
+      { icon: '▤', name: 'Agent Templates',      desc: 'pre-built agent blueprints for common independent worker tasks — billing, outreach, reporting, QA',   badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Plugin API',           desc: 'extend sambara with custom tools, external integrations, and proprietary data sources via SDK',       badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Execution Logs',       desc: 'full audit trail for every agent run — inputs, outputs, decisions, approvals, and anomalies',         badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--cyan',   text: 'L1–L5 autonomy model v2 finalized — approval threshold matrix defined',     meta: 'design · trust',         time: '1d ago' },
+      { color: '--green',  text: 'pricing-optimizer-01 agent completed 38 price checks — 0 errors',           meta: 'runtime · agent',        time: '2h ago' },
+      { color: '--gold',   text: 'lead-qualifier-02 scored 14 new leads — 3 high priority flagged',           meta: 'runtime · agent',        time: '4h ago' },
+      { color: '--purple', text: 'Plugin API spec reviewed — tool manifest schema v1 approved',               meta: 'design · sdk',           time: '3d ago' },
+      { color: '--amber',  text: 'invoice-tracker-03 flagged $8,200 outstanding — reminder queue staged',     meta: 'runtime · billing',      time: '6h ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Agent runtime v1',   desc: 'deploy, run, monitor',           tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Trust & safety L3',  desc: 'approval gates, oversight',      tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Orchestration flows', desc: 'chained tasks, conditionals',   tag: 'q2 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Plugin API',         desc: 'custom tools, integrations',     tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 55,
+  },
+
+  shango: {
+    name: 'shango', title: 'shan<em>go</em>',
+    eyebrow: 'ogun OS · solution factory · CI/CD & build system',
+    desc: 'Shango is the build and deployment layer — a full-stack solution factory for creating, testing, and shipping software products, APIs, and digital solutions as an independent builder.',
+    icon: '⚡', accentVar: '--red', type: 'builder', eta: 'q3 2026',
+    stats: [
+      { label: 'active builds',   value: '3',    sub: '1 deploying',       cls: 'accent' },
+      { label: 'tests passed',    value: '94%',  sub: '↑ this sprint',     cls: '', subcls: 'up' },
+      { label: 'deployments',     value: '12',   sub: 'this month',        cls: '' },
+      { label: 'solutions built', value: '5',    sub: 'across enterprises',cls: 'accent' },
+    ],
+    features: [
+      { icon: '⚡', name: 'Solution Factory',   desc: 'scaffold, build, and package digital solutions — APIs, apps, tools — with integrated CI/CD pipeline', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'CI/CD Pipeline',     desc: 'automated test, build, and deploy pipeline — GitHub integration, staging, and one-click production', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Test Runner',        desc: 'run unit, integration, and end-to-end tests with visual reports and coverage tracking',              badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Deployment Manager', desc: 'multi-environment deployment — dev, staging, prod — with rollback, blue-green, and canary support', badge: 'planned', badgeCls: 'planned' },
+      { icon: '⬡', name: 'Agent-Assisted Dev', desc: 'sambara agents for automated code review, dependency updates, and regression detection',            badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Build Artifacts',    desc: 'store and version all build artifacts — binaries, packages, and container images with metadata',    badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--red',    text: 'research-api v1.4.2 deployed — 3 tests passed, 0 failures',               meta: 'deployment · prod',      time: '1h ago' },
+      { color: '--green',  text: 'CI/CD pipeline v2 spec reviewed — GitHub Actions integration planned',     meta: 'design · pipeline',      time: '2d ago' },
+      { color: '--gold',   text: 'Deployment manager schema finalized — 3 environments, rollback ready',     meta: 'design · deploy',        time: '4d ago' },
+      { color: '--cyan',   text: 'Sambara agent hooks defined for automated code review tasks',              meta: 'integration · agents',   time: '5d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Build scaffolding',  desc: 'project init, structure',        tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'CI/CD pipeline',     desc: 'test, build, deploy',            tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Deployment manager', desc: 'environments, rollback',         tag: 'q3 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Agent-assisted dev', desc: 'code review, deps, regressions', tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 38,
+  },
+
+  ume: {
+    name: 'ume', title: 'u<em>me</em>',
+    eyebrow: 'ogun OS · organization OS · governance & structure',
+    desc: 'Ume is the organizational layer — governance structures, equity management, contracts, and legal scaffolding for independent workers building entities, DAOs, and formal ventures.',
+    icon: '◫', accentVar: '--indigo', type: 'governance', eta: 'q3 2026',
+    stats: [
+      { label: 'entities managed', value: '2',    sub: 'in setup',          cls: '' },
+      { label: 'contracts',        value: '—',    sub: 'template ready',    cls: '' },
+      { label: 'equity tables',    value: '1',    sub: 'draft',             cls: 'accent' },
+      { label: 'governance docs',  value: '—',    sub: 'in design',         cls: '' },
+    ],
+    features: [
+      { icon: '◫', name: 'Governance Builder',  desc: 'define operating agreements, decision rights, and policy frameworks for your enterprise structures', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Equity Management',   desc: 'cap table management — track ownership stakes, vesting schedules, and equity distributions',         badge: 'soon',    badgeCls: 'soon' },
+      { icon: '▤', name: 'Contract Studio',     desc: 'generate, sign, and store legal contracts — NDAs, SOWs, retainers, and partnership agreements',      badge: 'planned', badgeCls: 'planned' },
+      { icon: '◎', name: 'Role & Policy Engine', desc: 'define roles, responsibilities, and policy rules across your enterprise hierarchy and team',         badge: 'planned', badgeCls: 'planned' },
+      { icon: '⬡', name: 'DAO Tooling',         desc: 'on-chain governance primitives — voting, proposals, and treasury management for decentralized orgs', badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Compliance Monitor',  desc: 'track regulatory filing deadlines, annual reports, and governance obligations across jurisdictions', badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--indigo', text: 'Governance builder data model v1 finalized — 6 structure types',           meta: 'design · governance',    time: '2d ago' },
+      { color: '--gold',   text: 'Equity management schema reviewed — vesting, dilution, and transfers',     meta: 'design · equity',        time: '4d ago' },
+      { color: '--blue',   text: 'Contract studio template library scoped — 12 contract types planned',      meta: 'design · contracts',     time: '6d ago' },
+      { color: '--purple', text: 'DAO tooling spec reviewed — on-chain voting mechanism defined',            meta: 'design · dao',           time: '8d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Entity schema design', desc: 'structure types, hierarchy',    tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Governance builder',   desc: 'policies, roles, agreements',  tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Equity management',    desc: 'cap table, vesting',            tag: 'q3 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Contract studio',      desc: 'templates, signing, storage',  tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 25,
+  },
+
+  zamani: {
+    name: 'zamani', title: 'zam<em>ani</em>',
+    eyebrow: 'ogun OS · estate management · physical assets',
+    desc: 'Zamani is the estate and physical asset management layer — property tracking, maintenance scheduling, rental income management, and real estate portfolio intelligence.',
+    icon: '⌂', accentVar: '--brown', type: 'estate', eta: 'q4 2026',
+    stats: [
+      { label: 'properties',     value: '—',    sub: 'ready to add',      cls: '' },
+      { label: 'asset value',    value: '—',    sub: 'connect to track',  cls: '' },
+      { label: 'rental income',  value: '—',    sub: 'pending setup',     cls: '' },
+      { label: 'maintenance',    value: '—',    sub: 'no tasks yet',      cls: '' },
+    ],
+    features: [
+      { icon: '⌂', name: 'Property Registry',    desc: 'track all physical properties — residential, commercial, land — with full metadata and documents',   badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Rental Management',     desc: 'manage tenants, leases, and rental income — automated rent collection and arrears tracking',         badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Asset Valuation',       desc: 'track property valuations over time with market comparables and appreciation analytics',             badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Maintenance Tracker',   desc: 'schedule and track maintenance tasks, vendor relationships, and repair cost history',                badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Income Intelligence',   desc: 'rental yield calculations, occupancy rates, and income optimization recommendations via qala',       badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Document Vault',        desc: 'store and organize all property documents — deeds, leases, insurance, and inspections',              badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--brown',  text: 'Property data model v1 designed — residential, commercial, land types',   meta: 'design · schema',        time: '3d ago' },
+      { color: '--gold',   text: 'Rental management flow scoped — tenant, lease, and payment objects',      meta: 'design · rental',        time: '5d ago' },
+      { color: '--green',  text: 'Asset valuation integration scoped with external data provider',          meta: 'design · valuation',     time: '7d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Data model design',   desc: 'property types, schema',         tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Property registry',   desc: 'add, track, document',           tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Rental management',   desc: 'tenants, leases, income',        tag: 'q4 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Asset intelligence',  desc: 'valuation, yield, insights',     tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 18,
+  },
+
+  mizeez: {
+    name: 'mizeez', title: 'miz<em>eez</em>',
+    eyebrow: 'ogun OS · link network · knowledge graph & forest',
+    desc: 'Mizeez is the knowledge graph and link network — connect ideas, people, opportunities, and entities into a living forest of relationships that powers discovery and serendipity.',
+    icon: '⋈', accentVar: '--lime', type: 'network', eta: 'q4 2026',
+    stats: [
+      { label: 'nodes mapped',    value: '—',    sub: 'graph empty',       cls: '' },
+      { label: 'connections',     value: '—',    sub: 'pending seed',      cls: '' },
+      { label: 'forests',         value: '—',    sub: 'create first',      cls: '' },
+      { label: 'link strength',   value: '—',    sub: 'no data yet',       cls: '' },
+    ],
+    features: [
+      { icon: '⋈', name: 'Knowledge Graph',     desc: 'build a personal knowledge graph — link people, ideas, projects, and entities with typed relationships', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Forest & Tree View',   desc: 'visualize your link network as a living forest — zoom from macro overview to individual node detail',   badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Serendipity Engine',   desc: 'surface unexpected connections and opportunities from your network using qala intelligence signals',    badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Link Templates',       desc: 'define relationship types — investor, collaborator, mentor, supplier — with custom properties',         badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Network Import',       desc: 'import connections from LinkedIn, email, and CRM tools — auto-categorize and map to graph',            badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Shared Forests',       desc: 'share curated portions of your knowledge graph with collaborators via ayo spaces',                     badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--lime',   text: 'Knowledge graph schema v1 reviewed — node and edge type taxonomy defined', meta: 'design · graph',         time: '4d ago' },
+      { color: '--gold',   text: 'Forest visualization approach selected — D3.js force-directed graph',      meta: 'design · visualization', time: '6d ago' },
+      { color: '--teal',   text: 'Serendipity engine algorithm scoped with qala intelligence team',          meta: 'design · discovery',     time: '8d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Schema design',       desc: 'nodes, edges, types',            tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Core graph engine',   desc: 'create, link, traverse',         tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Forest visualization', desc: 'interactive graph view',        tag: 'q4 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Serendipity engine',  desc: 'discovery, recommendations',     tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 20,
+  },
+
+  zuri: {
+    name: 'zuri', title: 'zu<em>ri</em>',
+    eyebrow: 'ogun OS · marketplace & exchange · digital store',
+    desc: 'Zuri is the marketplace and exchange layer — publish, sell, and distribute digital products, services, templates, and knowledge artifacts to your network and beyond.',
+    icon: '◈', accentVar: '--pink', type: 'marketplace', eta: 'q2 2026',
+    stats: [
+      { label: 'active listings',  value: '3',    sub: '2 products · 1 svc', cls: 'accent' },
+      { label: 'GMV this month',   value: '$1.2K',sub: '↑ 8 sales',          cls: '', subcls: 'up' },
+      { label: 'conversion rate',  value: '4.2%', sub: 'across listings',   cls: 'accent' },
+      { label: 'avg order value',  value: '$249', sub: 'digital products',  cls: '' },
+    ],
+    features: [
+      { icon: '◈', name: 'Listing Builder',      desc: 'create and publish product listings — digital downloads, templates, services, and knowledge products', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Storefront',            desc: 'your branded public storefront — customizable layout, featured products, and buyer experience',        badge: 'soon',    badgeCls: 'soon' },
+      { icon: '₦', name: 'Payment Processing',    desc: 'accept payments globally — Stripe, local rails, crypto — with automatic kogi wallet deposit',          badge: 'soon',    badgeCls: 'soon' },
+      { icon: '▤', name: 'Buyer Analytics',       desc: 'understand your buyers — acquisition source, conversion funnel, repeat purchase rate, and LTV',       badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Agent-Driven Sales',   desc: 'sambara agents for pricing optimization, listing A/B testing, and abandoned cart recovery',            badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Affiliate Program',    desc: 'launch an affiliate program for your products — commission tracking, referral links, and payouts',      badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--pink',   text: 'Listing builder v2 UX redesigned — 3 listing types supported',             meta: 'design · listings',      time: '1d ago' },
+      { color: '--green',  text: 'Payment processing tested with Stripe — receipts and wallet deposit live',  meta: 'build · payments',       time: '2d ago' },
+      { color: '--gold',   text: 'Storefront customization options scoped — 4 layout templates planned',      meta: 'design · storefront',    time: '4d ago' },
+      { color: '--cyan',   text: 'Sambara pricing-optimizer-01 agent integrated — live testing',              meta: 'integration · agents',   time: '3h ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Payment infrastructure', desc: 'stripe, wallet, receipts',    tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Listing builder',       desc: 'create, publish, manage',      tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Storefront v1',         desc: 'branded, public, SEO',         tag: 'q2 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Buyer analytics',       desc: 'funnel, LTV, cohorts',         tag: 'q3 2026', tagCls: 'planned' },
+    ],
+    progress: 45,
+  },
+
+  igi: {
+    name: 'igi', title: 'i<em>gi</em>',
+    eyebrow: 'ogun OS · portfolio management · assets & investments',
+    desc: 'Igi is the portfolio and investment tracking layer — monitor equity stakes, investment positions, asset performance, and multi-venture portfolio health across all your holdings.',
+    icon: '◆', accentVar: '--yellow', type: 'portfolio', eta: 'q3 2026',
+    stats: [
+      { label: 'tracked assets',  value: '—',    sub: 'add first asset',   cls: '' },
+      { label: 'portfolio value', value: '—',    sub: 'pending data',      cls: '' },
+      { label: 'equity stakes',   value: '—',    sub: 'link via ume',      cls: '' },
+      { label: 'return YTD',      value: '—',    sub: 'no positions yet',  cls: '' },
+    ],
+    features: [
+      { icon: '◆', name: 'Portfolio Tracker',   desc: 'track all investment positions — equities, crypto, private stakes, and alternative assets in one view', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Equity Dashboard',    desc: 'visualize your cap table positions across all enterprises wired through the ume governance layer',      badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Performance Analytics', desc: 'IRR, MOIC, and return attribution across all holdings — benchmark against market indices',           badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Deal Tracker',        desc: 'track investment opportunities from sourcing to close — term sheets, due diligence, and cap table sim', badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Market Integration',  desc: 'live pricing for public positions via connected data feeds — auto-update valuations daily',            badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Tax & Reporting',     desc: 'capital gains tracking, cost basis management, and tax-optimized harvesting recommendations via dongo', badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--yellow', text: 'Portfolio data model v1 reviewed — 8 asset class types defined',           meta: 'design · schema',        time: '3d ago' },
+      { color: '--gold',   text: 'Equity dashboard integration scoped with ume governance layer',            meta: 'design · ume',           time: '5d ago' },
+      { color: '--green',  text: 'Performance analytics formulas reviewed — IRR, MOIC, TWR defined',        meta: 'design · analytics',     time: '7d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Asset class schema',  desc: '8 types, metadata, valuation',   tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Portfolio tracker',   desc: 'add, track, visualize',          tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Equity dashboard',    desc: 'cap table, stakes, ume link',    tag: 'q3 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Performance suite',   desc: 'IRR, MOIC, tax optimization',    tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 22,
+  },
+
+  didara: {
+    name: 'didara', title: 'did<em>ara</em>',
+    eyebrow: 'ogun OS · creative studio · design & content production',
+    desc: 'Didara is the creative studio layer — design tools, content production workflows, brand asset management, and creative project pipelines for independent creators and designers.',
+    icon: '✦', accentVar: '--pink', type: 'creative', eta: 'q4 2026',
+    stats: [
+      { label: 'brand assets',    value: '—',    sub: 'upload to start',   cls: '' },
+      { label: 'content pieces',  value: '—',    sub: 'create first',      cls: '' },
+      { label: 'brand kits',      value: '—',    sub: 'pending setup',     cls: '' },
+      { label: 'design projects', value: '—',    sub: 'in development',    cls: '' },
+    ],
+    features: [
+      { icon: '✦', name: 'Brand Kit Manager',   desc: 'manage your complete brand identity — logos, colors, fonts, and guidelines across all enterprises',    badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Content Studio',      desc: 'create and organize content — articles, social posts, videos, and assets — with a unified production workflow', badge: 'soon', badgeCls: 'soon' },
+      { icon: '◈', name: 'Template Library',    desc: 'build and reuse design templates — social graphics, pitch decks, proposals, and marketing materials',   badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Asset Vault',         desc: 'centralized media library — organized, searchable, and accessible across all modules and enterprises',  badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'AI Creative Tools',  desc: 'sambara-powered creative assistance — copywriting, image prompts, and design variation generation',      badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Publish Pipeline',   desc: 'schedule and distribute content to zuri listings, ayo communities, and external platforms',             badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--pink',   text: 'Creative studio product scope finalized — 6 core feature areas defined',   meta: 'design · scope',         time: '2d ago' },
+      { color: '--gold',   text: 'Brand kit data model reviewed — colors, fonts, logos, and guidelines',     meta: 'design · brand',         time: '4d ago' },
+      { color: '--purple', text: 'AI creative tools scoped with sambara agent infrastructure team',           meta: 'design · ai',            time: '6d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Product scope',       desc: 'features, architecture, scope',  tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Brand kit manager',   desc: 'logos, colors, fonts',           tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Content studio',      desc: 'create, organize, schedule',     tag: 'q4 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'AI creative tools',   desc: 'assisted creation, variation',   tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 15,
+  },
+
+  akeel: {
+    name: 'akeel', title: 'ak<em>eel</em>',
+    eyebrow: 'ogun OS · knowledge base · documentation & learning',
+    desc: 'Akeel is the knowledge and documentation layer — build personal wikis, knowledge bases, and structured learning systems that grow with your work and power your entire ogun OS.',
+    icon: '📚', accentVar: '--teal', type: 'knowledge', eta: 'q3 2026',
+    stats: [
+      { label: 'knowledge pages',  value: '—',    sub: 'create first page', cls: '' },
+      { label: 'workspaces',       value: '5',    sub: 'linked via kogi',   cls: 'accent' },
+      { label: 'templates',        value: '—',    sub: 'in design',         cls: '' },
+      { label: 'search index',     value: '—',    sub: 'pending content',   cls: '' },
+    ],
+    features: [
+      { icon: '📚', name: 'Personal Wiki',       desc: 'build a structured personal knowledge base — pages, sections, and hierarchies with rich text editing', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Workspace Docs',       desc: 'documentation layer for each kogi workspace — project notes, briefs, SOPs, and client knowledge',    badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Learning System',      desc: 'structured learning tracks — capture notes, resources, and progress as you build new skills',         badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Template Engine',      desc: 'create and reuse document templates — meeting notes, project briefs, proposals, and retrospectives',  badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'AI Search & Recall',  desc: 'semantic search across all your knowledge — find anything by meaning, not just keywords, via oba',    badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Public Publishing',    desc: 'selectively publish knowledge pages as a public knowledge site or documentation portal',              badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--teal',   text: 'Knowledge base data model v1 reviewed — pages, blocks, hierarchy',         meta: 'design · schema',        time: '2d ago' },
+      { color: '--gold',   text: 'Workspace docs integration scoped with kogi — 5 workspaces linked',        meta: 'integration · kogi',     time: '4d ago' },
+      { color: '--blue',   text: 'AI search and recall architecture reviewed with oba AI layer',              meta: 'integration · ai',       time: '5d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Data model design',   desc: 'pages, blocks, hierarchy',       tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Personal wiki v1',    desc: 'create, edit, organize',         tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Workspace docs',      desc: 'kogi integration, templates',    tag: 'q3 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'AI search & recall',  desc: 'semantic, oba-powered',          tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 28,
+  },
+
+  moto: {
+    name: 'moto', title: 'mo<em>to</em>',
+    eyebrow: 'ogun OS · mobility & transport · movement and logistics',
+    desc: 'Moto is the mobility and transport layer — manage vehicles, travel logistics, expense tracking for movement, and mobility infrastructure for independent workers on the go.',
+    icon: '◉', accentVar: '--blue', type: 'mobility', eta: 'q4 2026',
+    stats: [
+      { label: 'vehicles tracked', value: '—',    sub: 'add to register',   cls: '' },
+      { label: 'trips logged',     value: '—',    sub: 'pending mileage',   cls: '' },
+      { label: 'travel expenses',  value: '—',    sub: 'link to dongo',     cls: '' },
+      { label: 'logistics tasks',  value: '—',    sub: 'in development',    cls: '' },
+    ],
+    features: [
+      { icon: '◉', name: 'Vehicle Registry',    desc: 'register and manage vehicles — personal, fleet, and rented — with maintenance schedules and docs',     badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Trip Logger',         desc: 'log business trips with GPS tracking, mileage calculation, and automatic expense categorization',       badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Travel Expense Hub',  desc: 'capture, categorize, and submit travel expenses — fuel, tolls, parking, transit — linked to dongo',    badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Logistics Planner',   desc: 'plan and track multi-stop logistics — delivery routes, pickup scheduling, and time optimization',       badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Mileage & Tax',       desc: 'auto-calculate deductible mileage for tax purposes — business vs personal split with evidence trail',   badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Fleet Intelligence',  desc: 'qala-powered fleet performance insights — utilization rates, cost per km, and maintenance forecasting', badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--blue',   text: 'Mobility module scope finalized — 5 core use cases defined',               meta: 'design · scope',         time: '3d ago' },
+      { color: '--gold',   text: 'Vehicle registry data model reviewed — 4 vehicle types, maintenance log',  meta: 'design · schema',        time: '5d ago' },
+      { color: '--green',  text: 'Dongo integration scoped — travel expenses auto-categorization link',      meta: 'integration · dongo',    time: '7d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Product scope',       desc: 'use cases, architecture',        tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Vehicle registry',    desc: 'register, manage, maintain',     tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Trip logger',         desc: 'GPS, mileage, expenses',         tag: 'q4 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Fleet intelligence',  desc: 'qala insights, optimization',    tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 14,
+  },
+
+  kanna: {
+    name: 'kanna', title: 'kan<em>na</em>',
+    eyebrow: 'ogun OS · wellness & health · energy and performance',
+    desc: 'Kanna is the wellness and performance layer — track health metrics, energy levels, recovery, and habits that directly impact your capacity as an independent worker.',
+    icon: '◎', accentVar: '--green', type: 'wellness', eta: 'q4 2026',
+    stats: [
+      { label: 'health metrics',  value: '—',    sub: 'connect a source',  cls: '' },
+      { label: 'energy score',    value: '—',    sub: 'pending baseline',  cls: '' },
+      { label: 'habits tracked',  value: '—',    sub: 'set up habits',     cls: '' },
+      { label: 'recovery index',  value: '—',    sub: 'in development',    cls: '' },
+    ],
+    features: [
+      { icon: '◎', name: 'Energy Tracker',      desc: 'log and monitor energy levels throughout the day — correlate with focus sessions, output, and sleep',   badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◈', name: 'Habit System',        desc: 'build and track performance habits — sleep, exercise, nutrition, and focus — with streak and trend data', badge: 'soon',    badgeCls: 'soon' },
+      { icon: '⬡', name: 'Health Integrations', desc: 'connect Apple Health, Oura, Whoop, and Garmin — auto-import recovery, HRV, and activity data',         badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Work-Health Insights', desc: 'qala-powered correlation between health data and productivity metrics — optimize for peak performance', badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'Recovery Planning',   desc: 'AI-assisted recovery scheduling — balance deep work with rest to maximize sustainable output',          badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Wellness Reports',    desc: 'weekly and monthly wellness summaries — trends, anomalies, and personalized recommendations',           badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--green',  text: 'Wellness module scope finalized — energy, habits, recovery defined',       meta: 'design · scope',         time: '2d ago' },
+      { color: '--gold',   text: 'Health integration list finalized — Apple Health, Oura, Whoop, Garmin',    meta: 'design · integrations',  time: '4d ago' },
+      { color: '--teal',   text: 'Work-health correlation model scoped with qala intelligence team',         meta: 'design · analytics',     time: '6d ago' },
+    ],
+    roadmap: [
+      { phase: '✓', cls: 'done',    name: 'Product scope',       desc: 'metrics, habits, integrations',  tag: 'done',    tagCls: 'done' },
+      { phase: '→', cls: 'active',  name: 'Energy tracker',      desc: 'log, trend, correlate',          tag: 'active',  tagCls: 'active' },
+      { phase: '3', cls: 'planned', name: 'Health integrations', desc: 'Oura, Whoop, Apple Health',      tag: 'q4 2026', tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Work-health insights', desc: 'qala correlation, optimize',    tag: 'q4 2026', tagCls: 'planned' },
+    ],
+    progress: 12,
+  },
+};
+
+// ── DETECT WHICH APP THIS PAGE IS FOR ─────────────────────────
+function detectApp() {
+  // First: check URL parameter  ?app=kogi
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('app') && APP_REGISTRY[params.get('app')]) {
+    return APP_REGISTRY[params.get('app')];
+  }
+  // Second: check filename  kogi.html → 'kogi'
+  const filename = window.location.pathname.split('/').pop().replace('.html','').toLowerCase();
+  if (APP_REGISTRY[filename]) return APP_REGISTRY[filename];
+  // Third: check parent iframe src hint via document.referrer or title
+  // Fallback: generic placeholder
+  return {
+    name: 'module', title: 'mod<em>ule</em>',
+    eyebrow: 'ogun OS · module · in development',
+    desc: 'This module is currently in active development and will be available in a future release of ogun OS.',
+    icon: '⬡', accentVar: '--gold', type: 'module', eta: 'q3 2026',
+    stats: [
+      { label: 'status',          value: 'dev',  sub: 'in progress',       cls: '' },
+      { label: 'build phase',     value: '1',    sub: 'architecture',      cls: 'accent' },
+      { label: 'integrations',    value: '—',    sub: 'pending',           cls: '' },
+      { label: 'release eta',     value: 'tbd',  sub: '2026',              cls: '' },
+    ],
+    features: [
+      { icon: '◈', name: 'Core Features',       desc: 'primary functionality for this module — full specification in progress',                              badge: 'soon',    badgeCls: 'soon' },
+      { icon: '◎', name: 'Module Integration',  desc: 'wired into the ogun OS apapo hypergrid layer with cross-module data access',                         badge: 'soon',    badgeCls: 'soon' },
+      { icon: '⬡', name: 'Agent Hooks',         desc: 'sambara agent integration points for automation and workflow orchestration',                          badge: 'planned', badgeCls: 'planned' },
+      { icon: '▤', name: 'Data Layer',          desc: 'persistent storage, versioning, and cross-module query access via the apapo substrate',              badge: 'planned', badgeCls: 'planned' },
+      { icon: '⚡', name: 'API & SDK',           desc: 'developer access via the ogun OS SDK — REST and GraphQL endpoints with type-safe bindings',          badge: 'planned', badgeCls: 'planned' },
+      { icon: '◧', name: 'Analytics',           desc: 'qala observatory integration — performance metrics and AI-generated insights for this module',        badge: 'planned', badgeCls: 'planned' },
+    ],
+    logs: [
+      { color: '--gold',   text: 'Module architecture design initiated',                                     meta: 'planning · architecture', time: 'recently' },
+      { color: '--teal',   text: 'Integration points identified across ogun OS modules',                     meta: 'design · integration',   time: 'recently' },
+      { color: '--blue',   text: 'Feature specification in progress',                                        meta: 'design · features',      time: 'recently' },
+    ],
+    roadmap: [
+      { phase: '→', cls: 'active',  name: 'Architecture design',  desc: 'schema, topology, APIs',         tag: 'active',  tagCls: 'active' },
+      { phase: '2', cls: 'planned', name: 'Core implementation',  desc: 'primary features, data layer',   tag: 'tbd',     tagCls: 'planned' },
+      { phase: '3', cls: 'planned', name: 'Integration & testing', desc: 'cross-module, agents, SDK',     tag: 'tbd',     tagCls: 'planned' },
+      { phase: '4', cls: 'planned', name: 'Public release',        desc: 'launch, docs, onboarding',      tag: 'tbd',     tagCls: 'planned' },
+    ],
+    progress: 10,
+  };
+}
+
+// ── APPLY ACCENT COLOR ─────────────────────────────────────────
+function applyAccent(accentVar) {
+  const root = document.documentElement;
+  // Map accent var to hi and lo equivalents
+  const base = accentVar.replace('--', ''); // e.g. 'gold'
+  root.style.setProperty('--accent',    `var(${accentVar})`);
+  root.style.setProperty('--accent-hi', `var(--${base}-hi, var(${accentVar}))`);
+  root.style.setProperty('--accent-lo', `var(--${base}-lo)`);
+}
+
+// ── RENDER PAGE ────────────────────────────────────────────────
+function renderPage(app) {
+  applyAccent(app.accentVar);
+
+  // Status bar
+  document.getElementById('app-name-bar').textContent = app.name;
+
+  // Hero
+  document.getElementById('hero-icon').textContent     = app.icon;
+  document.getElementById('hero-eyebrow').textContent  = app.eyebrow;
+  document.getElementById('hero-title').innerHTML      = app.title;
+  document.getElementById('hero-desc').textContent     = app.desc;
+  document.getElementById('hero-tag-type').textContent = app.type;
+  document.getElementById('hero-tag-eta').textContent  = 'eta · ' + app.eta;
+
+  // Stats
+  const statsRow = document.getElementById('stats-row');
+  statsRow.innerHTML = app.stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value ${s.cls || ''}">${s.value}</div>
+      <div class="stat-sub ${s.subcls || ''}">${s.sub}</div>
+    </div>
+  `).join('');
+
+  // Features
+  const featureGrid = document.getElementById('feature-grid');
+  featureGrid.innerHTML = app.features.map(f => `
+    <div class="feature-card">
+      <div class="feature-card-badge ${f.badgeCls}">${f.badge}</div>
+      <div class="feature-icon">${f.icon}</div>
+      <div class="feature-name">${f.name}</div>
+      <div class="feature-desc">${f.desc}</div>
+    </div>
+  `).join('');
+
+  // Build log
+  const logBody = document.getElementById('log-body');
+  logBody.innerHTML = app.logs.map(l => `
+    <div class="log-row">
+      <div class="log-dot" style="background:var(${l.color});"></div>
+      <div class="log-content">
+        <div class="log-text">${l.text}</div>
+        <div class="log-meta">${l.meta}</div>
+      </div>
+      <div class="log-time">${l.time}</div>
+    </div>
+  `).join('');
+  document.getElementById('log-badge').textContent = app.logs.length + ' entries';
+
+  // Roadmap
+  const roadmapBody = document.getElementById('roadmap-body');
+  roadmapBody.innerHTML = app.roadmap.map(r => `
+    <div class="roadmap-item">
+      <div class="roadmap-phase ${r.cls}">${r.phase}</div>
+      <div class="roadmap-body">
+        <div class="roadmap-name ${r.cls}">${r.name}</div>
+        <div class="roadmap-desc">${r.desc}</div>
+      </div>
+      <div class="roadmap-tag ${r.tagCls}">${r.tag}</div>
+    </div>
+  `).join('');
+
+  // Progress ticker
+  const pct = app.progress;
+  document.getElementById('ticker-pct').textContent  = pct + '%';
+  document.getElementById('ticker-note').textContent = buildPhaseNote(pct);
+  document.getElementById('bb-name').textContent     = app.name;
+  document.getElementById('watermark').textContent   = app.type;
+
+  // Animate progress bar
+  setTimeout(() => {
+    document.getElementById('ticker-fill').style.width = pct + '%';
+  }, 300);
+
+  // Page title
+  document.title = 'ogun OS · ' + app.name;
+}
+
+function buildPhaseNote(pct) {
+  if (pct < 20) return 'architecture · design phase';
+  if (pct < 40) return 'core build · data layer';
+  if (pct < 60) return 'feature build · integration';
+  if (pct < 80) return 'testing · refinement · polish';
+  return 'beta · final testing';
+}
+
+// ── BOOT ──────────────────────────────────────────────────────
+const app = detectApp();
+renderPage(app);
+</script>
+</body>
+</html>
