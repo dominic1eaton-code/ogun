@@ -59,7 +59,7 @@ This umbrella repository collects the implementation workspaces, product documen
   - [Contributing](#contributing)
   - [License](#license)
 - [Ogun Prototype and tooling sites](#ogun-prototype-and-tooling-sites)
-  - [prototype](#prototype)
+  - [ogun os prototype](#ogun-os-prototype)
   - [ogun os documentation](#ogun-os-documentation)
   - [ogun home site](#ogun-home-site)
   - [jaku devops platform](#jaku-devops-platform)
@@ -510,7 +510,7 @@ See [`LICENSE.md`](LICENSE.md) for the full license text.
 
 # Ogun Prototype and tooling sites
 
-## prototype
+## ogun os prototype
 https://ogun-prototype.eatondo000.workers.dev/
 
 ## ogun os documentation
