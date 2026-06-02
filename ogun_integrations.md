@@ -2577,9 +2577,13 @@ add more integrations:
 - deepseek
 - gemini
 - grok
+- replit
+- lovable
 
 - yahoo
 - gmail
+
+- vscode ogun os developer extension
 
 
 - misc...
