@@ -964,13 +964,10 @@ The 15 kernel subsystems (initialized in order): Telemetry+Logging → Memory �
 `ogun-host-service` is not a user-facing autostart entry — it is a kernel-managed process launched automatically by `ogun-kernel-core` during boot because its `ogun-component.toml` declares `auto_start = true`. `ogun-desktop.exe` is the only binary registered as the host OS autostart entry; it starts the emulator, which runs the boot chain through to the kernel, which reads the service manifest and starts the host service.
 
 **`ogun-host`** (host client) — Handles user space runtime functionality. A complete, isolated ogun OS runtime instance managed by `ogun-host-service`. Each instance contains:
-- `ogun-uefi` — virtual UEFI layer, runs before the bootloader
-- `ogun-bootloader` — three-stage verification; produces `KernelBootBundle`
-- `ogun-kernel-core` — 15 subsystems; drives boot from step 7 onward; runs the supervisor loop
 - `ogun-session-manager` — operator auth, session context, workspace state, OS-tier service lifecycle
 - All running processes — every Tier 1–4 process is a child of the host instance
 
-The host instance is the unit of restart. Crashing an individual app does not crash the host instance. Crashing the host instance causes the host service to create a new one. The host service itself is never restarted by a host instance crash.
+The host instance is the unit of restart. Crashing an individual app does not crash the host instance. Crashing the host instance causes the host service to create a new one. The host service itself is never restarted by a host instance crash. The kernel runs independent of host client instances, with a backwards dependency chain, where host crashes do not cause a kernel crash, but kernel crashes crash the entire system, including hosts.
 
 **`ogun-session-manager`** — Handles user session management, login, authentication, user space applications and packages. An `rlib` crate linked into `ogun-kernel-core`. Activated at boot Step 10 via `SessionStartBundle`. Owns:
 - Operator authentication (passkey + TOTP/2FA on Desktop; WebAuthn on Web; biometric on Mobile)
