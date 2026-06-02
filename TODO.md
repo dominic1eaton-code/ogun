@@ -23,7 +23,7 @@ future web/mobile/server/device ambitions.
   - Some supporting crates use plain `0.1.0`.
   - `ogun-tools/src/ogun-setup` and generated setup UI/config text still use `0.2.0-alpha`.
   - Beta docs and release artifacts target `0.1.0-beta`.
-- Architecture docs describe the beta runtime as `ogun-desktop.exe -> ogun-emulator -> virtual devices -> ogun-uefi -> ogun-host-service -> ogun-bootloader -> ogun-kernel-core -> ogun-session-manager`.
+- Architecture for beta runtime should be: `ogun-desktop.exe -> ogun-emulator -> virtual devices -> ogun-uefi -> ogun-bootloader -> ogun-kernel-core -> ogun-host-service -> ogun-host -> ogun-session-manager -> ogun-user-apps`.
 - Local implementation is still alpha scaffolding:
   - Many crates expose placeholder `initialize()` or `run()` functions.
   - `ogun-image-format` still supports stub images.
