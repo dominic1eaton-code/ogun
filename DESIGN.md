@@ -965,7 +965,7 @@ The 15 kernel subsystems (initialized in order): Telemetry+Logging → Memory �
 
 **`ogun-host`** (host client) — Handles user space runtime functionality. A complete, isolated ogun OS runtime instance managed by `ogun-host-service`. Each instance contains:
 - `ogun-session-manager` — operator auth, session context, workspace state, OS-tier service lifecycle
-- All running processes — every Tier 1–4 process is a child of the host instance
+- All running user apps — every Tier 4 app process is a child of the host instance
 
 The host instance is the unit of restart. Crashing an individual app does not crash the host instance. Crashing the host instance causes the host service to create a new one. The host service itself is never restarted by a host instance crash. The kernel runs independent of host client instances, with a backwards dependency chain, where host crashes do not cause a kernel crash, but kernel crashes crash the entire system, including hosts.
 
