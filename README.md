@@ -10,7 +10,7 @@
 
 # The Ogun Operating System
 
-An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, coaches, gig workers, consultants, etc... written in Rust.
+An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, coaches, gig workers, consultants, creators, etc... written in Rust.
 
 ogun os home website: https://ogun.eatondo000.workers.dev/
 
@@ -35,6 +35,7 @@ This umbrella repository collects the implementation workspaces, product documen
 - [The Ogun Operating System](#the-ogun-operating-system)
   - [Contents](#contents)
   - [Status](#status)
+  - [Screenshots](#screenshots)
   - [What ogun OS Is](#what-ogun-os-is)
   - [Key Features](#key-features)
   - [Runtime Shape](#runtime-shape)
@@ -74,6 +75,7 @@ This umbrella repository collects the implementation workspaces, product documen
   - [ogun os prototype](#ogun-os-prototype)
   - [ogun os documentation](#ogun-os-documentation)
   - [ogun home site](#ogun-home-site)
+    - [ogun os developers site](#ogun-os-developers-site)
   - [jaku devops platform](#jaku-devops-platform)
   - [oya system development platform](#oya-system-development-platform)
   - [bula UIUX development platform](#bula-uiux-development-platform)
@@ -92,6 +94,28 @@ This umbrella repository collects the implementation workspaces, product documen
 The `0.1.0-beta` release establishes the complete foundational runtime: virtual UEFI layer, bootloader, kernel core, session manager, 15 kernel subsystems, emulator, virtual devices, desktop host, drivers, OS apps, user apps, tools, SDKs, signed images, and installer artifacts.
 
 Current alpha state: architecture and scaffolding are in place across all workspaces. Many crates are still implementing the documented specifications. See [`TODO.md`](TODO.md) for the full tracked work-to-beta list and [`CHANGELOG.md`](CHANGELOG.md) for the complete beta scope.
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="ogun-setup-screenshot-0.png" alt="System Installer — Welcome"/><br/><sub>System Installer — Welcome</sub></td>
+    <td><img src="ogun-setup-screenshot-1.png" alt="System Installer — Setup flow"/><br/><sub>System Installer — Setup flow</sub></td>
+    <td><img src="ogun-screenshot-4.png" alt="Boot screen — session ready"/><br/><sub>Boot screen — session ready</sub></td>
+  </tr>
+  <tr>
+    <td><img src="ogun-screenshot-0.png" alt="Desktop — Operate · Build · Become"/><br/><sub>Desktop — Operate · Build · Become</sub></td>
+    <td><img src="ogun-screenshot-1.png" alt="Command Center — Observatory"/><br/><sub>Command Center — Observatory</sub></td>
+    <td><img src="ogun-screenshot-2.png" alt="Files explorer &amp; Messenger"/><br/><sub>Files explorer &amp; Messenger</sub></td>
+  </tr>
+  <tr>
+    <td><img src="ogun-screenshot-3.png" alt="Operator Center — Identity &amp; Records"/><br/><sub>Operator Center — Identity &amp; Records</sub></td>
+    <td><img src="ogun-image-tool-screenshot-0.png" alt="Ogun image builder tool"/><br/><sub>Ogun os image builder tool</sub></td>
+    <td><img src="enzo-screenshot-0.png" alt="Enzo — Enterprise Overview"/><br/><sub>Enzo — Enterprise Overview</sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -530,6 +554,9 @@ https://ogun-docs.eatondo000.workers.dev/
 
 ## ogun home site
 https://ogun.eatondo000.workers.dev/
+
+### ogun os developers site
+https://ogun-developer.eatondo000.workers.dev/
 
 ## jaku devops platform
 https://jaku.eatondo000.workers.dev/
