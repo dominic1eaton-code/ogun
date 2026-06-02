@@ -24,6 +24,16 @@ future web/mobile/server/device ambitions.
   - `ogun-tools/src/ogun-setup` and generated setup UI/config text still use `0.2.0-alpha`.
   - Beta docs and release artifacts target `0.1.0-beta`.
 - Architecture for beta runtime should be: `ogun-desktop.exe -> ogun-emulator -> virtual devices -> ogun-uefi -> ogun-bootloader -> ogun-kernel-core -> ogun-host-service -> ogun-host-client -> ogun-session-manager -> ogun-user-apps`.
+  - ogun-desktop.exe is main OS executable
+  - ogun-emulator handles entire OS runtime and lifecycle
+  - virtual ogun-devices handle low level interface functionality between ogun platform and target host platform (windows, linux, mac, redox, etc.)
+  - ogun-uefi handles boot startup
+  - ogun-bootloader handles image integrity verification and kernel loading
+  - ogun-kernel handles OS kernel space runtime functionality
+  - ogun-host-service handles ogun-host management and host client supervision and orchestration
+  - ogun-host (host client) handles user space runtime functionality
+  - ogun-session-manager handles user session management, login, authentation, user space applications and packages
+  - ogun-user-apps are directly used by users during active host sessions
 - Local implementation is still alpha scaffolding:
   - Many crates expose placeholder `initialize()` or `run()` functions.
   - `ogun-image-format` still supports stub images.

@@ -1,4 +1,4 @@
-# ogun OS Design
+# Ogun OS Design part I
 
 This document summarizes the architecture and development boundaries for the
 top-level ogun OS repository. The detailed release specifications live in
@@ -72,7 +72,8 @@ boot time
        ogun-virtual-cpu, ogun-virtual-network-adapter
   -> ogun-uefi performs four phases: Pre-Init → Device Init → Boot Menu → Handoff
   -> ogun-bootloader runs three-stage verification (image → manifest → host key)
-  -> ogun-host-service starts kernel core and session manager
+  -> ogun-kernel-core reads ogun-host-service/ogun-component.toml (auto_start = true) and starts it as a kernel process
+  -> ogun-host-service supervises host instances and drives session manager startup
 
 runtime
   -> ogun-kernel-core initializes 15 subsystems in strict canonical order
@@ -94,7 +95,7 @@ runtime
 | Emulator and virtual devices | Present stable virtual monitor, CPU, host platform, network adapter, and UEFI layers. `ogun-emulator-backend` is the sole component that calls host OS APIs directly. |
 | Virtual UEFI | Software virtual UEFI firmware: splash screen, boot menu, variable store, secure boot policy, and `ExitBootServices()` handoff. |
 | Bootloader and image format | Three-stage boot verification (image signature → system manifest → host key re-derivation) before any kernel code executes. |
-| Host service | Persistent daemon inside `ogun-emulator`; supervises host instances, drives crash recovery, coordinates clean shutdown. |
+| Host service | Persistent kernel process auto-started by `ogun-kernel-core` via its `ogun-component.toml` service manifest (`auto_start = true`); supervises host instances, drives crash recovery, coordinates clean shutdown. |
 | Kernel core | Initializes 15 subsystems in canonical order; drives the 17-step boot sequence; owns the supervisor loop. |
 | Session manager | Owns authentication, operator/workspace context, session snapshots, crash recovery, workspace switching, and clean shutdown. |
 | SDKs | Define ABI-stable contracts for apps, services, modules, packages, plugins, drivers, hosts, and devices. |
@@ -113,14 +114,14 @@ ogun-desktop.exe  (user-facing launcher; registered autostart entry)
       -> ogun-virtual-cpu               (software-defined execution scheduler)
       -> ogun-virtual-network-adapter   (software-emulated NIC; NodeId via ed25519)
       -> ogun-uefi                      (virtual UEFI firmware; splash + boot menu)
-      -> ogun-host-service              (persistent daemon; supervises host instances)
-          -> ogun-bootloader            (three-stage verification; KernelBootBundle)
-          -> ogun-kernel-core           (15 subsystems; 17-step boot sequence)
-          -> ogun-session-manager       (auth; session context; workspace lifecycle)
-              -> Tier-1 kernel services (modules-manager, process-manager, ipc-broker)
-              -> Tier-2 OS apps         (desktop, shell, explorer, security-center, ...)
-              -> Tier-3 utility apps    (notes, tasks, focus, calendar, messenger, ...)
-              -> Tier-4 user apps       (enzo, kogi, dongo, ume, shango, igi, moto, ...)
+      -> ogun-bootloader                (three-stage verification; KernelBootBundle)
+      -> ogun-kernel-core               (15 subsystems; 17-step boot sequence)
+          -> ogun-host-service          (persistent daemon; supervises host instances)
+              -> ogun-session-manager   (auth; session context; workspace lifecycle)
+                  -> Tier-1 kernel services (modules-manager, process-manager, ipc-broker)
+                  -> Tier-2 OS apps         (desktop, shell, explorer, security-center, ...)
+                  -> Tier-3 utility apps    (notes, tasks, focus, calendar, messenger, ...)
+                  -> Tier-4 user apps       (enzo, kogi, dongo, ume, shango, igi, moto, ...)
 ```
 
 Production boot must fail closed. Any failure in image authenticity, installation
@@ -157,7 +158,7 @@ provides: a variable store, a device list, a boot order, and runtime services.
 
 ## Three-Stage Boot Verification
 
-The bootloader runs three sequential verification stages inside `ogun-host-service`
+The bootloader runs three sequential verification stages inside `ogun-kernel-core`
 at the start of every new host instance. Any failure is fatal — `halt()` is
 called with zero side effects; a descriptive entry is written to
 `~/.ogun/logs/boot.log`.
@@ -193,7 +194,7 @@ host_key = HKDF-SHA256(
 ## Kernel Subsystems
 
 All 15 subsystems are implemented as separate `rlib` crates (`ogun-subsystem-*`)
-statically linked into `ogun-host-service`. They initialize in strict canonical
+statically linked into `ogun-kernel-core`. They initialize in strict canonical
 order; a failure at any step calls `crash()` on the host instance. Subsystem
 handles are `Arc<RwLock<_>>` shared across the supervisor loop, session manager,
 and module contexts.
@@ -479,7 +480,7 @@ workspaces. Private keys and local secrets must never be committed.
 
 ## Session Management
 
-The session manager (`ogun-session-manager`, `rlib` inside `ogun-host-service`)
+The session manager (`ogun-session-manager`, `rlib` inside `ogun-kernel-core`)
 owns the full user-space lifecycle from lock screen to clean shutdown.
 
 **`ActiveSessionContext`** — live runtime session record:
@@ -763,7 +764,7 @@ audit_log_encrypted       = true
 |---|---|
 | `ogun-setup-windows-0.1.0-beta.exe` | `ogun-setup.exe` — manages ogun OS images and OS installation; nine-step pipeline; silent install mode available. |
 | `ogun-desktop-windows-0.1.0-beta.exe` | `ogun-desktop.exe` — user-facing launcher; starts ogun OS; manages image modification, repair, and update. |
-| `ogun-emulator-windows-0.1.0-beta.exe` | `ogun-emulator` — main entry point (Tauri application); initializes virtual hardware; supervises `ogun-host-service`. |
+| `ogun-emulator-windows-0.1.0-beta.exe` | `ogun-emulator` — main entry point (Tauri application); initializes virtual hardware; runs boot chain through to `ogun-kernel-core`. |
 | `ogun_desktop_windows-windows-0.1.0-beta.exe` | `ogun-host-service` for Windows — all subsystems statically linked; Authenticode-signed. |
 | `ogun-windows-0.1.0-beta.img` | Signed platform kernel image — sections: `KernelCore`, `SessionManager`, `BootConfig`, `SystemManifest`, `Modules`, `Assets`. |
 | `ogun_image_tool-windows-0.1.0-beta.exe` | `ogun-image-builder` — produces signed `.img` files for CI and local developer use. |
@@ -874,3 +875,349 @@ setting, runtime flag, or IPC message can disable them.
 - `operator_id`, `enterprise_id`, `workspace_id`, and `trace_id` are mandatory on every process and every Elegua message after Step 12 of the boot sequence.
 - Apps and services depend only on `ogun-app-sdk` / `ogun-service-sdk`; they have zero visibility into kernel internals, driver handles, or the UEFI variable store.
 - Extensions require explicit operator approval (`opn-005`) before `dlopen`; absence of `operator_approved_at` blocks loading and logs to the audit trail.s
+
+---
+
+# OS Design part II
+
+# ogun OS — Design Document
+
+**Version:** 0.1.0-beta
+**Project:** Ogún · 2026
+**Owner:** Dominic Eaton (@eatondo)
+**Status:** Canonical Design Reference
+
+---
+
+## Canonical Runtime Architecture
+
+The canonical boot and runtime chain for the ogun OS beta runtime is:
+
+```
+ogun-desktop.exe
+  → ogun-emulator
+    → virtual devices
+      → ogun-uefi
+        → ogun-bootloader
+          → ogun-kernel-core
+            → ogun-host-service
+              → ogun-host-client
+                → ogun-session-manager
+                  → ogun-user-apps
+```
+
+### Component Definitions
+
+**`ogun-desktop.exe`** — Main OS executable and user-facing launcher. The only binary registered as the host OS autostart entry (via Task Scheduler on Windows, launchd on macOS, systemd user service on Linux). Responsible for:
+- Launching `ogun-emulator` as a Tauri application
+- Managing ogun OS image modifications, repairs, and updates
+- Registered by `ogun-setup.exe` as the single autostart entry per machine
+
+**`ogun-emulator`** — Handles the entire OS runtime and lifecycle. The main entry point of the ogun OS application; a Tauri 2.0+ application. Owns and manages:
+- Top-level supervision of the entire ogun OS runtime
+- Initialization of all virtual devices before handing off to `ogun-uefi`
+- The Tauri event loop on the main thread (no Tauri window is created in a child process)
+- Passing the boot chain to `ogun-bootloader` and then `ogun-kernel-core` after UEFI handoff
+
+**Virtual Devices** — Handle low-level interface functionality between the ogun platform and the target host platform (Windows, Linux, macOS, Redox, etc.). Initialized by `ogun-emulator` before the boot sequence begins. Four virtual devices:
+
+- **`ogun-virtual-display-monitor`** — Virtual display surface; pushes frames to the Tauri `WebviewWindow` on desktop. Renders exclusively via Tauri surfaces — no direct framebuffer writes.
+- **`ogun-virtual-platform-host`** — Virtual filesystem, entropy, timers, shell execution, and process management. Platform-specific implementations per host OS. The only layer that calls host OS APIs (`WinAPI`, `POSIX`, `Bionic`, `web-sys`) directly — no component above it does so.
+- **`ogun-virtual-cpu`** — Software-defined execution scheduler (not a hardware emulator). Acts as the unified execution clock for every in-process component in the runtime. Managed by the emulator alongside the other virtual devices; kernel-level scheduling coordinated through `ogun-subsystem-process`.
+- **`ogun-virtual-network-adapter`** — Software-emulated NIC. Owns a `NodeId` (ed25519-derived P2P address); presents an addressable endpoint to the network subsystem. Uses OS sockets only — no raw packet injection.
+
+**`ogun-uefi`** — Handles boot startup. A virtual UEFI firmware layer — the first ogun-specific component that executes after the emulator has initialized virtual hardware. Provides the conceptual equivalent of UEFI services for the ogun OS virtual hardware stack:
+- Splash screen and boot progress UI
+- Timed boot menu interrupt window (default 3 s; configurable 1–10 s)
+- Virtual BIOS/CMOS variable store (locked after `ExitBootServices()`)
+- Receives initialized virtual device handles from the emulator
+- Hands the initialized `UefiBootBundle` to `ogun-bootloader`
+
+**`ogun-bootloader`** — Handles image integrity verification and kernel loading. An `rlib` crate linked into `ogun-kernel-core`; called at the start of each new `ogun-host` instance via `ogun_bootloader::run()`. Performs three-stage boot verification before assembling the `KernelBootBundle` for handoff to the kernel:
+- **Stage 1 — Image authenticity:** Verifies the ed25519 signature of `ogun-kernel.img` against `image-verify.pub`; checks magic bytes, end sentinel, header self-hash, ABI version, `ImageKind::Platform` constraint, and all section hashes.
+- **Stage 2 — Install integrity:** Re-hashes every security-critical file listed in `system-manifest.json` and verifies the manifest's ed25519 signature against `system.pub`.
+- **Stage 3 — Host key re-derivation:** Re-derives the `HostKey` via `HKDF-SHA256` from `image_pubkey_bytes ‖ system_pubkey_bytes` and compares it to the stored `host.key`. Any mismatch is fatal.
+
+Any verification failure calls `halt()` — nothing else runs.
+
+**`ogun-kernel-core`** — Handles OS kernel space runtime functionality. An `rlib` crate that is the central runtime binary. Receives the `KernelBootBundle` from the bootloader and runs for the entire session lifetime. Owns and drives:
+- All 15 kernel subsystems (initialized in strict canonical order)
+- The 17-step boot sequence from step 7 onward
+- Kernel module loading (`auto_load` modules via `dlopen`)
+- Reading `ogun-component.toml` service manifests and auto-starting services marked `auto_start = true` (including `ogun-host-service`)
+- Tier 1 kernel service startup (`ogun-modules-manager`, `ogun-process-manager`, `ogun-ipc-broker`)
+- Lock screen presentation and IPC channel registration
+- The `HostServicePhase` state machine (22-variant enum)
+- The supervisor loop (ticks `ogun-cpu`, drains IPC, health-checks processes, manages snapshots, checks watchdog)
+
+The 15 kernel subsystems (initialized in order): Telemetry+Logging → Memory → Process+Scheduler → IPC+Event Bus → Storage+Backup → File+VFS+Namespace → Security+Governance → Services → Host+Drivers → Session+Account+RBAC → Display+UI+Window → State+Snapshot+Recovery → Components (Modules) → Network (OgunNet v2.0.0) → Emulation.
+
+**`ogun-host-service`** — Handles ogun-host management, host client supervision and orchestration. A kernel process declared in its `ogun-component.toml` manifest with `auto_start = true` and `kind = "kernel-service"`; the kernel reads this manifest during boot and auto-starts `ogun-host-service` as a managed kernel process. Responsibilities:
+- Creating, starting, supervising, and shutting down `ogun-host` instances
+- Monitoring the `ogun.host` IPC channel for phase change events and health reports
+- Crash detection and restart (up to `max_restart_attempts`, default 3, with exponential backoff)
+- Coordinating clean shutdown on host OS shutdown signals
+- Loading `~/.ogun/config/ogun.toml` and distributing `BootConfig` to each host instance
+- Writing the `system://` namespace root (`system://host/phase.json`, `system://boot/config.json`)
+- On server platforms: managing the `TenantRegistry`
+
+`ogun-host-service` is not a user-facing autostart entry — it is a kernel-managed process launched automatically by `ogun-kernel-core` during boot because its `ogun-component.toml` declares `auto_start = true`. `ogun-desktop.exe` is the only binary registered as the host OS autostart entry; it starts the emulator, which runs the boot chain through to the kernel, which reads the service manifest and starts the host service.
+
+**`ogun-host`** (host client) — Handles user space runtime functionality. A complete, isolated ogun OS runtime instance managed by `ogun-host-service`. Each instance contains:
+- `ogun-uefi` — virtual UEFI layer, runs before the bootloader
+- `ogun-bootloader` — three-stage verification; produces `KernelBootBundle`
+- `ogun-kernel-core` — 15 subsystems; drives boot from step 7 onward; runs the supervisor loop
+- `ogun-session-manager` — operator auth, session context, workspace state, OS-tier service lifecycle
+- All running processes — every Tier 1–4 process is a child of the host instance
+
+The host instance is the unit of restart. Crashing an individual app does not crash the host instance. Crashing the host instance causes the host service to create a new one. The host service itself is never restarted by a host instance crash.
+
+**`ogun-session-manager`** — Handles user session management, login, authentication, user space applications and packages. An `rlib` crate linked into `ogun-kernel-core`. Activated at boot Step 10 via `SessionStartBundle`. Owns:
+- Operator authentication (passkey + TOTP/2FA on Desktop; WebAuthn on Web; biometric on Mobile)
+- `ActiveSessionContext` construction and binding (`operator_id`, `workspace_id`, `enterprise_id`, `session_id`)
+- OS-tier service lifecycle (`ogun-security-manager`, `ogun-system-manager`, `ogun-app-manager`)
+- Session restore and crash recovery
+- Workspace and profile switching
+- Session persistence (snapshot interval, clean shutdown writes, workspace/profile switch writes)
+- Ọpọn Protocol enforcement at the user-space level (via `ogun-security-manager`)
+- Package management via `opm` (ogun Package Manager)
+
+**`ogun-user-apps`** — Directly used by users during active host sessions. All user-space applications organized into tiers:
+
+| Tier | Name | SDK | Execution | Privilege |
+|------|------|-----|-----------|-----------|
+| 1 | Kernel Services | `ogun-kernel-sdk` | Tokio tasks in-process | Full kernel access |
+| 2 | OS Apps | `ogun-app-sdk` (elevated) | OS child processes | Session manager access |
+| 3 | Utility Apps | `ogun-app-sdk` | OS child processes | Standard operator access |
+| 4 | User Apps | `ogun-app-sdk` | OS child processes | Standard operator access |
+
+Tier 4 user apps (the personal enterprise suite): `enzo`, `kogi`, `dongo`, `ume`, `heshima`, `shango`, `igi`, `akeel`, `moto`, `zamani`, `apapo`, `orun`, `mizeez`, `shaba`, `kanna`, `qala`, `sambara`, `zuri`, `didara`, `misimu`, `ayo`. All distributed as `.opkg` packages.
+
+---
+
+## Runtime Supervision Hierarchy
+
+```
+runtime:
+    ogun-desktop.exe                       ← user-facing launcher; registered autostart entry
+        ogun-emulator                      ← main entry point (Tauri application)
+            ogun-virtual-display-monitor   ← virtual device: display surface
+            ogun-virtual-platform-host     ← virtual device: host platform (fs, entropy, process)
+            ogun-virtual-cpu               ← virtual device: software-defined execution scheduler
+            ogun-virtual-network-adapter   ← virtual device: software-emulated NIC
+            ogun-uefi                      ← virtual UEFI; splash UI; boot menu; variable store
+            ogun-bootloader                ← three-stage boot verification; KernelBootBundle
+            ogun-kernel-core               ← 15 subsystems; supervisor loop; drivers
+                ogun-host-service          ← persistent daemon; started and managed by kernel
+                    ogun-host              ← one complete ogun OS runtime instance per session
+                        ogun-session-manager   ← operator auth; session context; workspace lifecycle
+                        apps (tier 1–4):
+                            tier 1 — kernel services  ← ogun-modules-manager,
+                                                         ogun-process-manager, ogun-ipc-broker
+                            tier 2 — OS apps          ← ogun-desktop, ogun-shell,
+                                                         ogun-command-center, ogun-explorer, etc.
+                            tier 3 — utility apps     ← ogun-notes, ogun-tasks,
+                                                         ogun-assistant, etc.
+                            tier 4 — user apps        ← enzo, kogi, dongo, ume,
+                                                         and the full personal enterprise suite
+```
+
+---
+
+## Boot Sequence (17 Steps)
+
+**Steps 1–6 — Bootloader phase:**
+
+1. User launches `ogun-desktop.exe` → starts `ogun-emulator` → emulator initializes virtual hardware → `ogun-uefi` presents splash/menu → `ogun-bootloader` runs three-stage verification → `ogun-kernel-core` initializes → kernel starts `ogun-host-service` → host-service creates a new `ogun-host` instance → calls `ogun_bootloader::run()`
+2. Platform detection via `cfg!()` into the `Platform` enum
+3. `OgunHostDriver::initialize()` — platform-specific host driver init
+4. `OgunDisplayDriver::initialize()` — display driver init for lock screen
+5. Three-stage boot verification (image authenticity → install integrity → host key re-derivation)
+6. `KernelBootBundle` assembly and handoff to kernel core
+
+**Steps 7–17 — Kernel and session phase:**
+
+7. Initialize all 15 kernel subsystems in canonical order
+8. Load `auto_load` kernel modules via `dlopen`
+9. Start Tier 1 kernel services (`ogun-modules-manager`, `ogun-process-manager`, `ogun-ipc-broker`)
+10. Present lock screen; register all IPC channels; construct and send `SessionStartBundle`
+11. Operator authentication
+12. Session context binding — construct `ActiveSessionContext`; broadcast `session.context.updated`
+13. OS-tier services start (`ogun-security-manager` → `ogun-system-manager` → `ogun-app-manager`)
+14. Session restore or crash recovery
+15. Desktop environment launch (`ogun-desktop`, `ogun-shell`, `ogun-command-center`)
+16. Plugins and extensions loaded (require `operator_approved_at` per `opn-005`)
+17. Auto-start Tier 4 user apps; broadcast `lifecycle.boot_completed`; phase set to `RUNNING`
+
+---
+
+## Software Lifecycle Phases
+
+| Phase | Description |
+|-------|-------------|
+| **Phase 1 — Build Pipeline** | CI-only. `ogun-image-builder` produces signed `.img` files per target platform. No private key material leaves CI. |
+| **Phase 2 — Installation** | `ogun-setup.exe` (includes `ogun-installer`) runs once per machine. Verifies image, scaffolds `~/.ogun/`, generates `SystemKey`, derives `HostKey`, registers `ogun-desktop.exe` as autostart. |
+| **Phase 3 — Boot Chain** | User launches `ogun-desktop.exe` → `ogun-emulator` → virtual hardware → `ogun-uefi` → bootloader verification → kernel init → kernel starts host-service → session login → desktop. |
+| **Phase 4 — Runtime** | `ogun-host` instance runs for the entire session lifetime. Host service supervises it, restarts on crash, coordinates clean shutdown. |
+
+---
+
+## Security Model — The Three Keys
+
+**Image Key (`ImageSigningKey`)** — ed25519 keypair owned exclusively by the CI build pipeline. Private key never leaves the CI secrets vault. Public key embedded in every `.img` file as `ImageVerifyKey` section, extracted to `~/.ogun/security/keys/image-verify.pub` at install time, verified by the bootloader on every boot.
+
+**System Key (`SystemKey`)** — ed25519 keypair generated by `ogun-installer` once at first installation. Private key stored exclusively in the host OS keychain (Windows DPAPI, macOS Keychain, Linux Secret Service). Public key at `~/.ogun/security/keys/system.pub`. Signs the system manifest; persists across image updates; changes only on full reinstall.
+
+**Host Key (`HostKey`)** — 32-byte derived identity token (not a keypair). Derived via:
+```
+host_key = HKDF-SHA256(
+    ikm:  image_pubkey_bytes ‖ system_pubkey_bytes,
+    salt: install_id_bytes,
+    info: b"ogun-host-key-v1",
+    len:  32
+)
+```
+Stored at `~/.ogun/security/keys/host.key` (0o400). Stamped on every telemetry event, audit entry, IPC message, and capability grant. Re-derived and compared by the bootloader on every boot (Stage 3).
+
+---
+
+## Execution Model — ogun-cpu
+
+`ogun-cpu` is a software-defined execution scheduler that acts as the unified execution clock for every in-process component. It ticks all running components in a priority-respecting round-robin on a shared Tokio thread pool.
+
+**Default tick rate:** 100 Hz (10 ms per tick). Configurable in `ogun.toml [kernel.cpu]`.
+
+**Priority bands:**
+
+| Band | Label | Execution lane |
+|------|-------|----------------|
+| P0 | Critical kernel | Synchronous on CPU's own Tokio task — never deferred |
+| P1–P4 | Normal | Thread pool workers |
+| P5–P7 | Background | Pool workers with BackgroundYieldGate |
+
+**Component lifecycle modes:** `init → configure → start → tick ↔ pause → freeze → reset → shutdown`
+
+**Thread pool:** Dynamically scales between `min_worker_threads` (default: 1) and `max_worker_threads` (default: `num_cpus - 1`). Scale-up when utilization > 80% or queue depth > 8; scale-down after utilization < 30% for 5 s cooldown. One worker added or removed per monitor cycle.
+
+---
+
+## The Elegua Protocol — IPC
+
+Named after Èṣù-Ẹlẹ́gbára — Yoruba orisha of crossroads and communication. The unified communications specification for all component-to-component, layer-to-layer, and process-to-process communication in ogun OS.
+
+**Version:** 0.3.0
+
+**Core channels:**
+
+| Channel | Key messages |
+|---------|-------------|
+| `ogun.host` | `phase.changed`, `status.changed`, `ready`, `crashed`, `shutdown_completed` |
+| `ogun.session` | `session.started`, `operator.login`, `workspace.switched`, `context.updated`, `session.ended` |
+| `ogun.system` | `onboarding.state`, `snapshot.written`, `crash.report`, `update.available`, `config.updated` |
+| `ogun.security` | `capability.granted`, `capability.denied`, `opn.violation` |
+| `ogun.apps` | `app.launched`, `app.terminated`, `app.crashed`, `app.installed` |
+| `ogun.network` | `peer.connected`, `peer.disconnected`, `channel.opened`, `channel.closed` |
+
+Every IPC message carries `operator_id`, `enterprise_id`, `workspace_id`, and `trace_id`. The IPC broker enforces workspace isolation routing — messages from `workspace_id = A` are not delivered to `workspace_id = B` without an explicit cross-workspace route.
+
+---
+
+## The Ọpọn Protocol — Data Governance
+
+Cross-enterprise data isolation system enforced at the kernel Security subsystem. Rules are defined in `opn-policy.json` (read-only after installation, 0o444) and evaluated by `ogun-subsystem-security` before every cross-enterprise data access.
+
+| Rule | Enforcement |
+|------|-------------|
+| `opn-001` | Enterprise namespace isolation — no cross-enterprise data reads without explicit grant |
+| `opn-002` | Agent authority bounds — agents cannot act outside declared authority without operator approval |
+| `opn-003` | Contract-before-active — enterprise workflows in active/billable states require an associated contract record |
+| `opn-004` | Revenue attribution integrity — revenue events must carry a valid `attribution_id` |
+| `opn-005` | Extension approval — extensions require `operator_approved_at` before `dlopen` |
+
+`opn_enforced = true` is reset unconditionally after every load of `ogun.toml`. No operator, app, or IPC message can disable it.
+
+---
+
+## Product Editions
+
+| Edition | Platform | Host Type | Status |
+|---------|----------|-----------|--------|
+| Desktop | Windows x64, macOS Apple Silicon, Linux x86_64 | `HostType::Desktop` | **0.1.0-beta (Windows x64 only)** |
+| Web | Chrome, Firefox, Safari (WASM) | `HostType::Web` | Designed; not shipping |
+| Mobile | Android arm64, iOS arm64 | `HostType::Mobile` | In progress |
+| Server | Headless Linux | `HostType::Server` | Designed; not shipping |
+| Device | IoT / embedded / custom hardware | `HostType::Device` | Designed; not shipping |
+
+---
+
+## Workspace Layout
+
+```
+ogun-os/
+├── launcher/
+│   └── ogun-desktop/           ← ogun-desktop.exe; registered autostart entry
+├── emulator/
+│   ├── ogun-emulator/          ← main entry point (Tauri app)
+│   ├── ogun-emulator-backend/  ← host OS calls (WinAPI / POSIX / Bionic / web-sys)
+│   └── ogun-os-emulator/       ← four virtual devices
+├── boot/
+│   ├── ogun-bootloader/        ← rlib; three-stage verification
+│   └── ogun-uefi/              ← rlib; virtual UEFI firmware
+├── drivers/
+│   ├── ogun-host-platform-driver/
+│   ├── ogun-display-driver/
+│   └── ogun-virtual-network-driver/
+├── kernel/
+│   ├── ogun-kernel-core/
+│   ├── ogun-session-manager/
+│   └── subsystems/             ← 15 subsystem crates
+├── sdk/
+│   ├── ogun-types/
+│   ├── ogun-image-format/
+│   ├── ogun-app-sdk/
+│   ├── ogun-service-sdk/
+│   ├── ogun-kernel-sdk/
+│   ├── ogun-driver-sdk/
+│   └── ogun-host-sdk/
+├── hosts/
+│   ├── ogun-desktop-host/      ← 0.1.0-beta
+│   ├── ogun-web-host/          ← planned
+│   ├── ogun-mobile-host/       ← in progress
+│   ├── ogun-device-host/       ← planned
+│   └── ogun-server-host/       ← planned
+├── runtime/
+│   └── ogun-host-service/      ← RUNTIME BINARY (managed by ogun-kernel-core)
+├── tools/
+│   ├── ogun-image-builder/     ← CI tool; produces signed .img files
+│   └── ogun-installer/         ← included in ogun-setup.exe
+├── apps/
+└── config/
+    ├── ogun.toml
+    ├── display.toml
+    ├── emulation.toml
+    └── uefi.toml
+```
+
+---
+
+## Key Design Invariants
+
+- `ogun-desktop.exe` is the only autostart entry — exactly one per machine.
+- `ogun-emulator-backend` is the only component that calls host OS APIs directly.
+- ed25519 signature over the kernel image is verified on every boot before anything executes.
+- Only `ImageKind::Platform` images are bootable — `Baseline` and `Patch` images halt boot.
+- `opn_enforced = true` is reset unconditionally after every `ogun.toml` load.
+- Every capability grant/denial is written to the audit log before the operation completes.
+- `CleanShutdownMarker` is written as the absolute last act of every shutdown.
+- Tier 1 services run as Tokio tasks in-process; Tier 2–4 apps run as OS child processes.
+- Virtual network adapters use OS sockets only — no raw packet injection.
+- Virtual monitor renders via Tauri surfaces only — no direct framebuffer writes.
+- Virtual host nesting depth ≤ configured maximum (≤ 10).
+- Every component tick is wrapped in `catch_unwind` — a panicking component never crashes the execution loop.
+- `operator_id`, `enterprise_id`, `workspace_id`, and `trace_id` are mandatory on every process and every Elegua Protocol message after boot Step 12.
+
+---
+
+*ogun OS · v0.1.0-beta · Project Ogún · 2026*
+*Owner: Dominic Eaton (@eatondo)*
+*Document: DESIGN.md*
