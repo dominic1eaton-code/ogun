@@ -10,7 +10,17 @@
 
 # The Ogun Operating System
 
-An Operating System for Independent Workers, entreprenuers, freelancers, founders, contractors, coaches, gig workers, consultants, creators, etc... written in Rust.
+**ogun OS** is a Rust-native operating-system layer for independent workers, including , entreprenuers, freelancers, founders, contractors, coaches, gig workers, consultants, creators, etc. It runs on top of an existing host operating system rather than replacing it, then presents a signed, capability-gated, workspace-oriented runtime with its own boot chain, virtual devices, kernel subsystems, SDKs, applications, tools, and release artifacts.
+
+This umbrella repository collects the implementation workspaces, product documentation, configuration templates, release artifacts, protocol libraries, and supporting crates used to build the planned `0.1.0-beta` Windows x64 Desktop Edition.
+
+---
+
+<img src="ogun-screenshot-5.png" alt="Ogun OS Desktop Edition"/><br/><sub>Ogun OS Windows x64 Desktop Edition.</sub>
+
+---
+
+## Links
 
 ogun os home website: https://ogun.eatondo000.workers.dev/
 
@@ -24,15 +34,10 @@ The primary ogun os repository is: https://gitlab.com/ogun-foundation/ogun
 
 ---
 
-**ogun OS** is a Rust-native operating-system layer for independent workers. It runs on top of an existing host operating system rather than replacing it, then presents a signed, capability-gated, workspace-oriented runtime with its own boot chain, virtual devices, kernel subsystems, SDKs, applications, tools, and release artifacts.
-
-This umbrella repository collects the implementation workspaces, product documentation, configuration templates, release artifacts, protocol libraries, and supporting crates used to build the planned `0.1.0-beta` Windows x64 Desktop Edition.
-
----
-
 ## Contents
 
 - [The Ogun Operating System](#the-ogun-operating-system)
+  - [Links](#links)
   - [Contents](#contents)
   - [Status](#status)
   - [Screenshots](#screenshots)
@@ -71,14 +76,14 @@ This umbrella repository collects the implementation workspaces, product documen
   - [Documentation](#documentation)
   - [Contributing](#contributing)
   - [License](#license)
-- [Ogun Prototype and tooling sites](#ogun-prototype-and-tooling-sites)
-  - [ogun os prototype](#ogun-os-prototype)
-  - [ogun os documentation](#ogun-os-documentation)
-  - [ogun home site](#ogun-home-site)
+  - [Ogun Prototype and tooling sites](#ogun-prototype-and-tooling-sites)
+    - [ogun os prototype](#ogun-os-prototype)
+    - [ogun os documentation](#ogun-os-documentation)
+    - [ogun home site](#ogun-home-site)
     - [ogun os developers site](#ogun-os-developers-site)
-  - [jaku devops platform](#jaku-devops-platform)
-  - [oya system development platform](#oya-system-development-platform)
-  - [bula UIUX development platform](#bula-uiux-development-platform)
+    - [jaku devops platform](#jaku-devops-platform)
+    - [oya system development platform](#oya-system-development-platform)
+    - [bula UIUX development platform](#bula-uiux-development-platform)
 
 ---
 
@@ -549,27 +554,27 @@ See [`LICENSE.md`](LICENSE.md) for the full license text.
 
 ---
 
-# Ogun Prototype and tooling sites
+## Ogun Prototype and tooling sites
 
-## ogun os prototype
+### ogun os prototype
 https://ogun-prototype.eatondo000.workers.dev/
 
-## ogun os documentation
+### ogun os documentation
 https://ogun-docs.eatondo000.workers.dev/
 
-## ogun home site
+### ogun home site
 https://ogun.eatondo000.workers.dev/
 
 ### ogun os developers site
 https://ogun-developer.eatondo000.workers.dev/
 
-## jaku devops platform
+### jaku devops platform
 https://jaku.eatondo000.workers.dev/
 
-## oya system development platform
+### oya system development platform
 https://oya.eatondo000.workers.dev/
 
-## bula UIUX development platform
+### bula UIUX development platform
 https://bula.eatondo000.workers.dev/
 
 ---
