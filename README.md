@@ -115,6 +115,11 @@ Current alpha state: architecture and scaffolding are in place across all worksp
     <td><img src="ogun-image-tool-screenshot-0.png" alt="Ogun image builder tool"/><br/><sub>Ogun os image builder tool</sub></td>
     <td><img src="enzo-screenshot-0.png" alt="Enzo — Enterprise Overview"/><br/><sub>Enzo — Enterprise Overview</sub></td>
   </tr>
+  <tr>
+    <td><img src="enzo-screenshot-1.png" alt="Enzo personal enterprises portfolios"/><br/><sub>Enzo personal enterprises portfolios</sub></td>
+    <td><img src="ogun-screenshot-6.png" alt="Command center home dashboard"/><br/><sub>Command center home dashboard</sub></td>
+    <td><img src="ogun-screenshot-7.png" alt="Workspaces and AI assistant"/><br/><sub>Workspaces and AI assistant</sub></td>
+  </tr>
 </table>
 
 ---
