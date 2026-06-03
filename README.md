@@ -16,7 +16,7 @@ This umbrella repository collects the implementation workspaces, product documen
 
 ---
 
-<img src="ogun-screenshot-5.png" alt="Ogun OS Desktop Edition"/><br/><sub>Ogun OS Windows x64 Desktop Edition.</sub>
+<img src="images/screenshots/ogun-screenshot-5.png" alt="Ogun OS Desktop Edition"/><br/><sub>Ogun OS Windows x64 Desktop Edition.</sub>
 
 ---
 
@@ -106,24 +106,24 @@ Current alpha state: architecture and scaffolding are in place across all worksp
 
 <table>
   <tr>
-    <td><img src="ogun-setup-screenshot-0.png" alt="System Installer — Welcome"/><br/><sub>System Installer — Welcome</sub></td>
-    <td><img src="ogun-setup-screenshot-1.png" alt="System Installer — Setup flow"/><br/><sub>System Installer — Setup flow</sub></td>
-    <td><img src="ogun-screenshot-4.png" alt="Boot screen — session ready"/><br/><sub>Boot screen — session ready</sub></td>
+    <td><img src="images/screenshots/ogun-setup-screenshot-0.png" alt="System Installer — Welcome"/><br/><sub>System Installer — Welcome</sub></td>
+    <td><img src="images/screenshots/ogun-setup-screenshot-1.png" alt="System Installer — Setup flow"/><br/><sub>System Installer — Setup flow</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-4.png" alt="Boot screen — session ready"/><br/><sub>Boot screen — session ready</sub></td>
   </tr>
   <tr>
-    <td><img src="ogun-screenshot-0.png" alt="Desktop — Operate · Build · Become"/><br/><sub>Desktop — Operate · Build · Become</sub></td>
-    <td><img src="ogun-screenshot-1.png" alt="Command Center — Observatory"/><br/><sub>Command Center — Observatory</sub></td>
-    <td><img src="ogun-screenshot-2.png" alt="Files explorer &amp; Messenger"/><br/><sub>Files explorer &amp; Messenger</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-0.png" alt="Desktop — Operate · Build · Become"/><br/><sub>Desktop — Operate · Build · Become</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-1.png" alt="Command Center — Observatory"/><br/><sub>Command Center — Observatory</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-2.png" alt="Files explorer &amp; Messenger"/><br/><sub>Files explorer &amp; Messenger</sub></td>
   </tr>
   <tr>
-    <td><img src="ogun-screenshot-3.png" alt="Operator Center — Identity &amp; Records"/><br/><sub>Operator Center — Identity &amp; Records</sub></td>
-    <td><img src="ogun-image-tool-screenshot-0.png" alt="Ogun image builder tool"/><br/><sub>Ogun os image builder tool</sub></td>
-    <td><img src="enzo-screenshot-0.png" alt="Enzo — Enterprise Overview"/><br/><sub>Enzo — Enterprise Overview</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-3.png" alt="Operator Center — Identity &amp; Records"/><br/><sub>Operator Center — Identity &amp; Records</sub></td>
+    <td><img src="images/screenshots/ogun-image-tool-screenshot-0.png" alt="Ogun image builder tool"/><br/><sub>Ogun os image builder tool</sub></td>
+    <td><img src="images/screenshots/enzo-screenshot-0.png" alt="Enzo — Enterprise Overview"/><br/><sub>Enzo — Enterprise Overview</sub></td>
   </tr>
   <tr>
-    <td><img src="enzo-screenshot-1.png" alt="Enzo personal enterprises portfolios"/><br/><sub>Enzo personal enterprises portfolios</sub></td>
-    <td><img src="ogun-screenshot-6.png" alt="Command center home dashboard"/><br/><sub>Command center home dashboard</sub></td>
-    <td><img src="ogun-screenshot-7.png" alt="Workspaces and AI assistant"/><br/><sub>Workspaces and AI assistant</sub></td>
+    <td><img src="images/screenshots/enzo-screenshot-1.png" alt="Enzo personal enterprises portfolios"/><br/><sub>Enzo personal enterprises portfolios</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-6.png" alt="Command center home dashboard"/><br/><sub>Command center home dashboard</sub></td>
+    <td><img src="images/screenshots/ogun-screenshot-7.png" alt="Workspaces and AI assistant"/><br/><sub>Workspaces and AI assistant</sub></td>
   </tr>
 </table>
 
