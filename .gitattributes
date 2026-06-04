@@ -1,0 +1,54 @@
+# @copyright Copyright (c) 2026, The Ogun Foundation and/or its affiliates. All rights reserved.
+# @brief project git attributes
+
+# linux
+*.h    eol=lf
+*.hpp  eol=lf
+*.c    eol=lf
+*.cpp  eol=lf
+*.cxx  eol=lf
+*.py   eol=lf
+*.pl   eol=lf
+*.sh   eol=lf
+*.doxy eol=lf
+
+# windows
+*.bat       eol=crlf
+*.java      eol=crlf
+*.classpath eol=crlf
+*.sln       eol=crlf
+*.vcproj    eol=crlf
+
+# cross platform
+*.template  eol=auto
+*.bzl       eol=auto
+*.bazel     eol=auto
+*BUILD      eol=auto
+*WORKSPACE  eol=auto
+*.md        eol=auto
+
+# binary
+*.tar      binary
+*.tar.gz   binary
+*.tgz      binary
+*.rpm      binary
+*.zip      binary
+*.jar      binary
+*.png      binary
+*.svg      binary
+*.jpeg     binary
+*.jpg      binary
+*.ico      binary
+*.xlsx     binary
+*.wav      binary
+*.pdf      binary
+*.lib      binary
+*.dll      binary
+*.exe      binary
+
+# extra
+*.blend  -delta
+*.glb  -delta
+*.spv  -delta
+
+# git-lfs
