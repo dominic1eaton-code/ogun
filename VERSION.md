@@ -1,1 +1,1 @@
-0.1.0-alpha.2.1-nightly
+v0.1.0-alpha.2.2-nightly-20260604T204800

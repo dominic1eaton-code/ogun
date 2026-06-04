@@ -172,6 +172,27 @@ cd C:\dev\ogun\ogun-tools\src\ogun-image-tool
 Remove-Item -LiteralPath node_modules -Recurse -Force
 ```
 
+## Development
+
+```powershell
+
+(cargo metadata --format-version 1 | ConvertFrom-Json).workspace_members | ForEach-Object { cargo install --path ($_ -split ' ')[0] }
+
+cd ogun-so/src/ogun-desktop
+
+cargo install --path .
+
+cargo install --path .  --root
+
+ogun_desktop
+
+cargo tree --workspace --depth 0
+
+cargo install cargo-workspaces
+cargo ws list
+
+```
+
 ## Current Scope
 
 The first public target is `0.1.0-beta` for Windows x64 Desktop Edition. Other
