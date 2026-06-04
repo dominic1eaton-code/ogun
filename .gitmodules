@@ -49,3 +49,6 @@
 [submodule "ogun-sdk"]
 	path = ogun-sdk
 	url = git@gitlab.com:ogun-foundation/ogun-sdk.git
+[submodule "ogun-devops"]
+	path = ogun-devops
+	url = git@gitlab.com:ogun-foundation/ogun-devops.git
