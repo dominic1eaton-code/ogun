@@ -170,6 +170,27 @@ Remove npm dependencies for a Tauri tool only if you intend to reinstall them:
 ```powershell
 cd C:\dev\ogun\ogun-tools\src\ogun-image-tool
 Remove-Item -LiteralPath node_modules -Recurse -Force
+
+
+## Development
+
+```powershell
+
+(cargo metadata --format-version 1 | ConvertFrom-Json).workspace_members | ForEach-Object { cargo install --path ($_ -split ' ')[0] }
+
+cd ogun-os/src/ogun-desktop/src-tauri
+
+cargo install --path .
+
+cargo install --path .  --root
+
+ogun_desktop
+
+cargo tree --workspace --depth 0
+
+cargo install cargo-workspaces
+cargo ws list
+
 ```
 
 ## Current Scope
