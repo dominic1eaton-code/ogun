@@ -1,1 +1,1 @@
-v0.1.0-alpha.2.4-dev
+vv0.1.0-alpha.2.4-nightly-20260606T043952
