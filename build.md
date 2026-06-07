@@ -42,6 +42,12 @@ Building, running and installing the ogun-os desktop application:
 
 (cargo metadata --format-version 1 | ConvertFrom-Json).workspace_members | ForEach-Object { cargo install --path ($_ -split ' ')[0] }
 
+## clone main ogun repository
+
+git clone git@gitlab.com:ogun-foundation/ogun.git
+
+cd ogun/
+
 
 ## build the dynamically loaded libraries first which are loaded at runtime by the main desktop app
 
@@ -68,6 +74,10 @@ cargo tree --workspace --depth 0
 
 cargo install cargo-workspaces
 cargo ws list
+
+## application test user login credentials:
+## username: adeyemi
+## password: ogun2025
 
 ```
 
