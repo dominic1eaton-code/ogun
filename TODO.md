@@ -1,209 +1,150 @@
 # ogun OS 0.1.0-beta Umbrella TODO
 
-Last updated: 2026-06-02
+Last updated: 2026-06-07
 
-Beta target from `ogun-docs/0.1.0-beta-release`: Windows x64 Desktop Edition only.
+Purpose: concise, actionable umbrella TODO for C:\dev\ogun. This document
+combines a short repository survey with a prioritized, restructured task list
+matching the top-level TODO items you requested. Each top-level section maps to
+concrete sub-tasks and recommended owners/places to implement work.
 
-This file tracks the top-level `C:\dev\ogun` umbrella repository and all local
-submodules. It intentionally separates release-blocking beta work from broader
-ecosystem scaffolding so the Windows desktop beta does not get held hostage by
-future web/mobile/server/device ambitions.
+----
 
-## Survey Snapshot
+## Quick repository survey (automated scan)
 
-- The umbrella repo currently has 17 configured submodules:
-  - `bula`, `elegua`, `jaku`, `oya`, `rustydb`
-  - `ogun-apps`, `ogun-artifacts`, `ogun-components`, `ogun-config`, `ogun-devices`
-  - `ogun-docs`, `ogun-os`, `ogun-runtime`, `ogun-sdk`, `ogun-sites`, `ogun-test-features`, `ogun-tools`
-- All submodules are checked out and no submodule reported local dirty files during `git submodule foreach --recursive git status --short`.
-- The top-level worktree is dirty only in `TODO.md` before this rewrite.
-- A top-level `Cargo.toml` now exists and is the intended umbrella workspace. Earlier TODO references to `Cargo-temp.toml` are stale.
-- Versioning is inconsistent:
-  - Top-level workspace and most Ogun crates are still `0.1.0-alpha`.
-  - Some supporting crates use plain `0.1.0`.
-  - `ogun-tools/src/ogun-setup` and generated setup UI/config text still use `0.2.0-alpha`.
-  - Beta docs and release artifacts target `0.1.0-beta`.
-- Architecture for beta runtime should be: `ogun-desktop.exe -> ogun-emulator -> virtual devices -> ogun-uefi -> ogun-bootloader -> ogun-kernel-core -> ogun-host-service -> ogun-host-client -> ogun-session-manager -> ogun-user-apps`.
-  - ogun-desktop.exe is main OS executable
-  - ogun-emulator handles entire OS runtime and lifecycle
-  - virtual ogun-devices handle low level interface functionality between ogun platform and target host platform (windows, linux, mac, redox, etc.)
-  - ogun-uefi handles boot startup
-  - ogun-bootloader handles image integrity verification and kernel loading
-  - ogun-kernel handles OS kernel space runtime functionality
-  - ogun-host-service handles ogun-host management and host client supervision and orchestration
-  - ogun-host (host client) handles user space runtime functionality
-  - ogun-session-manager handles user session management, login, authentation, user space applications and packages
-  - ogun-user-apps are directly used by users during active host sessions
-- Local implementation is still alpha scaffolding:
-  - Many crates expose placeholder `initialize()` or `run()` functions.
-  - `ogun-image-format` still supports stub images.
-  - `ogun-bootloader` still permits `ImageLoadMode::AllowStub` and uses stub driver info.
-  - `ogun-kernel` and `ogun-session` are partial/log-only.
-  - `ogun-devices` virtual devices are mostly print-only binaries.
-  - `bula`, `elegua`, `jaku`, `oya`, and `rustydb` have substantial README/spec claims but very small or empty code.
-- `ogun-sites` now contains multiple site source directories under `src/`, so its README statement that the workspace is only a scaffold is stale.
-- `ogun-artifacts` currently contains alpha-dev artifacts, not the beta artifact set.
+- Cargo manifests discovered: 122 (multiple crates across the workspace).
+- Key top-level projects and folders:
+  - ogun-os, ogun-runtime, ogun-components, ogun-sdk, ogun-tools, ogun-apps
+  - ogun-artifacts, ogun-docs, ogun-devices, ogun-config, ogun-sites
+  - ogun-test-features, ogun-devops, bula, elegua, jaku, oya, rustydb, aya/oya
+- Status notes from quick scan:
+  - The workspace is large and contains many example/test crates and Tauri frontends.
+  - Several manifests and crate path dependencies are stale (referencing moved/old ogun-types locations).
+  - Many runtime components are scaffolds or log-only placeholders.
 
-## Current Build Snapshot
+----
 
-Checked locally on 2026-06-02.
+## Top-level TODOs
 
-- Top-level `cargo metadata --format-version 1 --no-deps`: fails before metadata generation because `ogun-components/src/drivers/ogun-windows-host-driver` depends on missing `ogun-os/src/ogun-types`.
-- Top-level `cargo check --workspace`: blocked by the same manifest-loading failure.
-- `ogun-apps`: `cargo check --workspace` passes.
-- `ogun-runtime`: `cargo check --workspace` fails:
-  - `src/ogun-bootloader/src/boot.rs` has malformed import text: `gun_types::{...}` instead of a valid `use ogun_types::{...};`.
-  - `src/ogun-session/src/session.rs` calls `info!` without importing `tracing::info` or qualifying the macro.
-  - Workspace manifest still warns about missing resolver and unused `workspace.target-dir` / `profile.dev.disable-default-features`.
-- `ogun-sdk`: `cargo check --workspace` fails in `ogun_component_sdk/src/component.rs`:
-  - trait item has invalid `pub` visibility.
-  - `ogun_types` is referenced without a dependency.
-  - the trait default method attempts to assign `self.mode` on unconstrained `Self`.
-  - `ogun_types::OResult` does not exist in the current `ogun-types`; the available alias is `OgunResult`.
-- `ogun-components`: `cargo check --workspace` fails during manifest loading:
-  - `src/drivers/ogun-windows-host-driver/Cargo.toml` points `ogun_types` to missing `../../../../ogun-os/src/ogun-types`.
-- `ogun-devices`: `cargo check --workspace` fails during manifest loading:
-  - `ogun-virtual-cpu` and `ogun-virtual-display-monitor` are both named `ogun-virtual-monitor`.
-- `ogun-os`: `cargo check --workspace` fails during manifest parsing:
-  - `src/servers/ogun-host-server/Cargo.toml` contains unresolved merge-conflict markers.
-- Supporting crates `bula`, `elegua`, `jaku`, `oya`, `rustydb`, and the Tauri tool crates cannot currently be checked in isolation with Cargo because the parent umbrella workspace fails first.
-- JavaScript syntax checks passed:
-  - `node --check ogun-tools/src/ogun-image-tool/src/main.js`
-  - `node --check ogun-tools/src/ogun-setup/src/main.js`
+* @TODO: also create developer API
 
-## P0: Restore Cargo Workspace Load And Basic Compile
+### 1) add plugins, extensions, packages
 
-- [ ] Resolve the merge conflict in `ogun-os/src/servers/ogun-host-server/Cargo.toml`; choose the canonical package/bin name and remove all `<<<<<<<`, `=======`, `>>>>>>>` markers.
-- [ ] Fix every stale `ogun_types` path dependency so all crates point to `ogun-runtime/src/ogun-types` or to a promoted top-level shared crate.
-- [ ] Specifically fix `ogun-components/src/drivers/ogun-windows-host-driver/Cargo.toml` from `../../../../ogun-os/src/ogun-types` to the canonical `ogun-types` location.
-- [ ] Search all manifests for `ogun-os/src/ogun-types` and remove every remaining stale path.
-- [ ] Rename `ogun-devices/src/ogun-virtual-cpu` package/bin from `ogun-virtual-monitor` / `ogun_virtual_monitor` to `ogun-virtual-cpu` / `ogun_virtual_cpu`.
-- [ ] Fix `ogun-runtime/src/ogun-bootloader/src/boot.rs` malformed `gun_types::{...}` import.
-- [ ] Fix `ogun-runtime/src/ogun-session/src/session.rs` missing `tracing::info` import or replace the log call with a local logging path.
-- [ ] Fix `ogun-sdk/src/ogun_component_sdk/src/component.rs` so the trait compiles:
-  - remove invalid trait-item visibility
-  - depend on or avoid `ogun-types`
-  - replace `OResult` with `OgunResult` or add the intended alias
-  - avoid assigning `self.mode` unless the trait requires a mode accessor/mutator
-  - implement the runtime trait for `OComponent`
-- [ ] Add `resolver = "3"` to nested virtual workspaces using edition 2024 crates:
-  - `ogun-runtime/Cargo.toml`
-  - `ogun-sdk/Cargo.toml`
-  - `ogun-components/Cargo.toml`
-  - `ogun-devices/Cargo.toml`
-  - `ogun-os/Cargo.toml`
-- [ ] Remove invalid or unused manifest keys from nested workspace manifests:
-  - `workspace.target-dir`
-  - `profile.dev.disable-default-features`
-- [ ] Decide whether nested submodule workspaces should remain independently runnable or only be members of the umbrella workspace.
-- [ ] If nested workspaces remain independently runnable, make `cargo check --workspace` pass from each submodule directory.
-- [ ] If only the umbrella workspace is canonical, document that and remove/replace nested workspace manifests that confuse Cargo.
-- [ ] After manifest fixes, rerun:
-  - `cargo metadata --format-version 1 --no-deps`
-  - `cargo check --workspace`
-  - focused `cargo check --workspace` in each submodule workspace
-- [ ] Add a repeatable build-status section or script so these checks do not depend on manual notes in this file.
+- Goal: provide a stable plugin/module/package runtime and an ecosystem registry.
+- Where: `ogun-sdk` (plugin/package SDK), `ogun-components/src/extensions` (loader), `ogun-artifacts` (package artifacts), `ogun-sites` (registry UI).
+- Actions:
+  - Define plugin/package formats and on-disk layout (spec in `ogun-artifacts/docs`).
+  - Implement `ogun_plugin_sdk` and `ogun_pkg_sdk` adapters in `ogun-sdk`.
+  - Implement library loader in `ogun-components/src/extensions/ogun-libloader` and ensure safe sandboxing.
+  - Seed a local package registry (file-backed) under `ogun-artifacts` and wire a publishing CLI in `ogun-tools/ogun-image-tool`.
+  - Add integration tests: package install/upgrade/remove, version resolution, capability gating.
 
-## P0: Align Repository Layout With Beta Architecture
+---
 
-- [ ] Treat the top-level `Cargo.toml` as the canonical umbrella manifest or explicitly document why it is only a convenience manifest.
-- [ ] Update stale README note that still refers to `Cargo-temp.toml`.
-- [ ] Pick canonical crate names from the beta docs and apply them consistently:
-  - `ogun-kernel-core` instead of alpha-era `ogun-kernel` where appropriate
-  - `ogun-session-manager` instead of `ogun-session`
-  - `ogun-host-service` instead of `ogun_host_service`
-  - `ogun-image-builder` instead of or in addition to `ogun-image-tool`
-- [ ] Decide whether `ogun-runtime`, `ogun-components`, `ogun-devices`, and `ogun-sdk` remain separate repositories or become first-class members of one umbrella workspace.
-- [ ] Move, re-export, or publish `ogun-types` so every crate resolves one ABI/type source.
-- [ ] Ensure no crate depends upward into a higher layer for common types.
-- [ ] Normalize source paths in docs, manifests, and package metadata after any crate renames.
-- [ ] Remove or quarantine future-edition scaffolds from the beta build path:
-  - web edition
-  - mobile edition
-  - server edition
-  - device edition
-  - non-Windows desktop targets
-- [ ] Add an architecture map from planned beta component names to actual local paths.
-- [ ] Keep the map current whenever a crate is renamed, moved, or split.
+### 2) implement virtual hardware loops
 
-## P0: Version, Scope, And Release Discipline
+- Goal: implement stable, testable device tick loops and a device trait for beta.
+- Where: `ogun-devices`, `ogun-test-features/virtual_*`, `ogun-emulator` (planned in `ogun-os` or `ogun-runtime`).
+- Actions:
+  - Define `OgunDevice` trait (tick lifecycle, init/shutdown, serialize state) in `ogun-device-sdk`.
+  - Implement `ogun-virtual-cpu`, `ogun-virtual-display-monitor`, `ogun-virtual-network-adapter`, `ogun-virtual-platform-host` as rlib components.
+  - Provide supervisor harness in `ogun-emulator` that starts device loops and exposes control APIs.
+  - Add device smoke tests and a reproducible deterministic tick runner for CI.
 
-- [ ] Decide whether all beta source manifests should report `0.1.0-beta` or remain `0.1.0-alpha` until release cut.
-- [ ] Remove `0.2.0-alpha` from setup UI, generated config, generated manifests, and installer text.
-- [ ] Normalize artifact names to the beta docs:
-  - `ogun-setup-windows-0.1.0-beta.exe`
-  - `ogun-desktop-windows-0.1.0-beta.exe`
-  - `ogun-emulator-windows-0.1.0-beta.exe`
-  - `ogun-host-service-windows-0.1.0-beta.exe`
-  - `ogun-windows-0.1.0-beta.img`
-  - `ogun_image_tool-windows-0.1.0-beta.exe`
-- [ ] Resolve docs disagreement between `ogun_desktop_windows-windows-0.1.0-beta.exe` and `ogun-host-service-windows-0.1.0-beta.exe`.
-- [ ] Move alpha-dev artifacts out of beta artifact directories or label them explicitly as historical alpha artifacts.
-- [ ] Replace release docs language that claims all beta features are present until artifacts and tests prove the claim.
-- [ ] Document beta exclusions with concrete paths and rationale.
-- [ ] Keep Windows x64 Desktop Edition as the only P0 release target.
+---
 
-## P0: Runtime Entry Chain
+### 3) implement kernel subsystems
 
-- [ ] Implement `ogun-desktop.exe` as the user-facing launcher rather than a placeholder client.
-- [ ] Make the launcher start `ogun-emulator` and expose install/update/repair/modify flows.
-- [ ] Implement `ogun-emulator` as the Tauri main runtime entry point, not just a print-only binary.
-- [ ] Add an `ogun-emulator-backend` boundary and keep host OS API calls behind that boundary.
-- [ ] Initialize the four beta virtual devices before UEFI handoff:
-  - `ogun-virtual-display-monitor`
-  - `ogun-virtual-platform-host`
-  - `ogun-virtual-cpu`
-  - `ogun-virtual-network-adapter`
-- [ ] Make virtual devices `rlib` components used in-process unless release docs explicitly choose a process boundary.
-- [ ] Start and supervise exactly one `ogun-host-service` instance per emulator session.
-- [ ] Add singleton/lock enforcement so duplicate emulator/host-service instances cannot run for the same install.
-- [ ] Persist host phase state to `system://host/phase.json`.
-- [ ] Persist boot config state to `system://boot/config.json`.
-- [ ] Add an emulator smoke test that reaches UEFI handoff.
-- [ ] Add a full entry-chain smoke test: launcher -> emulator -> devices -> UEFI -> host service.
+- Goal: implement the 15 kernel subsystems and provide a canonical kernel boot flow.
+- Where: `ogun-runtime/src/ogun-kernel` (or split into `ogun-subsystem-*` crates depending on decision).
+- Actions:
+  - Decide module vs crate split for subsystems; update workspace accordingly.
+  - Implement minimal, testable behavior for each subsystem (telemetry, memory, process, IPC, storage, VFS, security, services, host, session, display, state, components, network, emulation).
+  - Provide typed `KernelBootBundle` and boot sequencing tests.
+  - Add subsystem diagnostics and structured `KernelRuntimeReport` output.
 
-## P0: Virtual UEFI
+---
 
-- [ ] Convert `ogun-devices/src/ogun-uefi` from print-only startup into a real virtual UEFI component.
-- [ ] Implement UEFI phases:
-  - Pre-Init
-  - Device Init
-  - Boot Menu
-  - Handoff
-- [ ] Implement the variable store at `~/.ogun/config/uefi/vars.bin`.
-- [ ] Define missing/corrupt variable-store recovery behavior.
-- [ ] Implement `SecureBootPolicy`.
-- [ ] Reject non-platform images before bootloader handoff.
-- [ ] Render splash/progress through the virtual display monitor surface.
-- [ ] Implement boot-menu interrupt window behavior:
-  - default 3000ms
-  - allowed 1000ms to 10000ms
-  - config value `0` treated as 3000ms
-- [ ] Lock `set_variable` after `ExitBootServices()`.
-- [ ] Write `~/.ogun/logs/uefi-boot.log` for every phase transition and error.
-- [ ] Wire `ogun-emulator -> ogun-uefi -> ogun-bootloader`.
-- [ ] Add UEFI tests for variable locking, corrupt-store recovery, secure-boot rejection, and handoff bundle generation.
+### 4) develop and integrate in rustydb persistence layer
 
-## P0: Image Format And Boot Verification
+- Goal: use `rustydb` as the single-file or embedded persistent store for runtime state.
+- Where: `rustydb`, `ogun-runtime` (storage subsystem), `ogun-session`, `ogun-host-service`.
+- Actions:
+  - Audit `rustydb` for required features: transactions, snapshots, compacting, WAL.
+  - Design DB schemas for `session`, `modules`, `installations`, `system-manifest`, and `telemetry` indices.
+  - Implement storage adapters under `ogun-runtime/src/subsystems/storage` to use `rustydb` and add migrations.
+  - Add DB integration tests and a small local CLI for inspecting DB contents in `rustydb/src/rustydb-shell`.
 
-- [ ] Replace `ogun-image-format` stub loading with a real parser for the beta five-region image format.
-- [ ] Keep `ImageLoadMode::AllowStub` available only for explicitly named test/dev paths.
-- [ ] Remove `ImageLoadMode::AllowStub` from production boot.
-- [ ] Implement `parse_header` with:
-  - `OGUNIMG\0` magic validation
-  - header size validation
-  - sentinel validation
-  - image kind validation
-  - ABI version validation
-  - image flags validation
-  - header self-hash validation
-- [ ] Implement `parse_section_table` with:
-  - section offsets
-  - compressed length
-  - uncompressed length
-  - section kind
-  - priority
-  - per-section SHA-256
+---
+
+### 5) get calendar utility app working end to end (frontend+backend+db+ui+ticking)
+
+- Goal: deliver one complete app as a reference for app integration (calendar).
+- Where: `ogun-apps` (identify calendar crate), `ogun-components` (app host integration), `ogun-sdk` (app SDK), `rustydb` for persistence.
+- Actions:
+  - Identify the calendar app crate in `ogun-apps` (if missing, scaffold `ogun-apps/src/ogun-calendar`).
+  - Implement backend state sync and persistence with `rustydb` schema.
+  - Hook UI assets (HTML/CSS/JS) into app packaging and ensure `tauri` backend bindings (if applicable).
+  - Add ticking/scheduler tests to validate calendar alarms and UI refresh.
+
+---
+
+### 6) get rest of apps working end to end
+
+- Goal: make Tier-2 user apps functional with documented integration pattern.
+- Where: `ogun-components/src/apps/*`, `ogun-apps` crates.
+- Actions:
+  - Prioritize Tier-2 apps (workspaces, settings, command-center, explorer) and provide a short checklist for each: build, backend API, persistence, UI wiring, smoke test.
+  - Create an `apps/integration` CI job (local script) that runs each app in a headless test harness.
+
+----
+
+## Roadmap sections you requested (preserve and expand)
+
+---
+
+* implement ogun-emulator and virtual device hardware loops
+  - See section "implement virtual hardware loops" above; add emulator harness in `ogun-os`.
+
+* implement kernel subsystems and persistant storage
+  - See sections above on kernel subsystems and `rustydb` integration.
+
+* split ui among seperate .html files
+  - Refactor `ogun-tools` setup UI and `ogun-components` app UIs to use modular HTML pages and shared assets; consolidate client JS in `ogun-tools/src/**/*.js`.
+
+* implement user app rust backends
+  - Use `ogun_app_sdk` to standardize IPC and lifecycle; add templates in `ogun-sdk` and `ogun-tools`.
+
+---
+
+* implement plugin, module and package systems
+  - Reuse work items in "add plugins, extensions, packages" to implement package manager and module loader.
+
+* replace ogun-image-tool and develop `ogun-ide` for developing, building and deploying ogun artifacts and components (applications, images, packages, installers, etc.), with ogun sdk built in
+  - Short-term: stabilize `ogun-image-tool` and add CLI publish/pack commands.
+  - Mid-term: scaffold `ogun-ide` (electron/tauri) under `ogun-tools/ogun-ide` with project templates and integrated SDK.
+
+---
+
+release 0.1.0 beta !
+
+- Release checklist (candidate):
+  - All P0 manifest fixes applied and `cargo check --workspace` succeeds.
+  - Installer and launcher integration complete and tested on Windows x64.
+  - Core subsystems implemented minimally with boot smoke test.
+  - Packaging and artifact naming normalized to `0.1.0-beta`.
+
+---
+
+0.2.0  release
+
+* figure out mobile and webhost implementations
+* implement more user apps tier 4
+* refine and cleanup architecture and design
+* generate documentation, update websites
+* figure out oshun operating system enterprise scaling automated runtime environment design, architecture and implementation
+
+----
+
 - [ ] Implement section decompression and extraction.
 - [ ] Implement zstd level-19 compression/decompression where the docs require it.
 - [ ] Implement ed25519 verification over the signed payload.
@@ -729,28 +670,4 @@ Checked locally on 2026-06-02.
 - [ ] Rerun `cargo metadata --format-version 1 --no-deps`.
 - [ ] Rerun `cargo check --workspace`.
 - [ ] Once the umbrella workspace loads, rerun focused checks for every submodule and replace this snapshot with the new failures.
-
-
----
-
-# simple todo
-
-* add plugins, extensions, packages
-* implement virtual hardware loops
-* implement kernel subsystems
-* develop and integrate in rustydb persistance layer
-* get calendar utility app working end to end (frontend+backend+db+ui+ticking)
-* get rest of apps working end to end
-
-release 0.1.0 beta !
-
----
-
-0.2.0  release
-
-* figure out mobile and webhost implementations
-* implement more user apps tier 4
-* refine and cleanup architecture and design
-* generate documentation, update websites
-* figure out oshun operating system enterprise scaling automated runtime environment design, architecture and implementation
 
