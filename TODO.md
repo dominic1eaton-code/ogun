@@ -729,3 +729,28 @@ Checked locally on 2026-06-02.
 - [ ] Rerun `cargo metadata --format-version 1 --no-deps`.
 - [ ] Rerun `cargo check --workspace`.
 - [ ] Once the umbrella workspace loads, rerun focused checks for every submodule and replace this snapshot with the new failures.
+
+
+---
+
+# simple todo
+
+* add plugins, extensions, packages
+* implement virtual hardware loops
+* implement kernel subsystems
+* develop and integrate in rustydb persistance layer
+* get calendar utility app working end to end (frontend+backend+db+ui+ticking)
+* get rest of apps working end to end
+
+release 0.1.0 beta !
+
+---
+
+0.2.0  release
+
+* figure out mobile and webhost implementations
+* implement more user apps tier 4
+* refine and cleanup architecture and design
+* generate documentation, update websites
+* figure out oshun operating system enterprise scaling automated runtime environment design, architecture and implementation
+

@@ -1215,6 +1215,550 @@ ogun-os/
 
 ---
 
+
+# OS Design Part III — Extended Reference
+
+---
+
+## Naming Philosophy and Conventions
+
+ogun OS names its systems, protocols, and apps from **Yoruba and West African cultural heritage** — a deliberate, meaningful attribution rooted in the project's founding values of sovereignty, forging, and intelligence.
+
+- **Ogun** — the Yoruba orisha of iron, technology, and creation. The OS embodies the principle of forging raw platform capabilities into a coherent operating environment.
+- **Elegua** — the Yoruba orisha of crossroads, communication, and messages. Names the inter-component communication protocol.
+- **Ọpọn** — a sacred divination board in Yoruba tradition. In ogun OS it names the cross-enterprise data isolation protocol — representing boundaries that must not be crossed without ceremony.
+- **Sambara** — drawn from Swahili traditions of communal intelligence; names the AI agents operating system.
+- **Enzo, Kogi, Dongo, Ume, Heshima, Shango, Igi, Akeel, Moto, Zamani, Apapo, Orun, Shaba, Kanna, Qala, Zuri, Didara, Misimu, Ayo** — Yoruba, Swahili, or West African-derived names for the Tier-4 application suite.
+
+Use of these names carries an ongoing obligation of respectful context and attribution.
+
+### Naming Conventions
+
+| Pattern | Rule | Examples |
+|---|---|---|
+| OS components | `ogun-<domain>` (kebab-case) | `ogun-kernel-core`, `ogun-desktop`, `ogun-shell` |
+| Kernel apps (Tier 1) | `ogun-<function>` | `ogun-bootloader`, `ogun-session-manager` |
+| OS apps (Tier 2) | `ogun-<name>` | `ogun-command-center`, `ogun-settings-center` |
+| Utility apps (Tier 3) | `ogun-<name>` | `ogun-notes`, `ogun-tasks`, `ogun-focus` |
+| User apps (Tier 4) | Single Yoruba/Swahili word (lowercase) | `enzo`, `kogi`, `dongo`, `sambara` |
+| Drivers | `ogun-host-<platform>` or `ogun-display-<target>` | `ogun-host-windows`, `ogun-display-tauri` |
+| SDKs | `ogun-<layer>-sdk` | `ogun-app-sdk`, `ogun-kernel-sdk`, `ogun-driver-sdk` |
+| Protocols | Proper name, no prefix | Elegua Protocol, Ọpọn Protocol |
+| Rust structs/enums | PascalCase | `SambaraAgent`, `AgentAuthorityLevel`, `EleguaMessage` |
+| Rust fields and vars | snake_case | `agent_id`, `workspace_id`, `operator_id` |
+| Config keys (TOML) | snake_case | `max_restart_attempts`, `ehr_floor_default` |
+| CLI commands | `<app>.<verb>` (namespaced dot notation) | `sambara.run`, `enzo.kpis`, `dongo.wallet` |
+| IPC channels | `ipc://<app>/<event>.<action>` | `ipc://kogi/engagement.renewed` |
+| Telemetry streams | `telemetry://<domain>/<scope>/<event>` | `telemetry://agents/[enterprise-id]/actions` |
+| Agent namespaces | Reverse-DNS: `com.enzo.<system>.<role>` | `com.enzo.kogi.pricing`, `com.enzo.qala.planner` |
+
+### Version Numbering
+
+All components use **semantic versioning** (`major.minor.patch[-channel]`):
+
+| Bump | Meaning |
+|---|---|
+| major | Breaking change to public contract, ABI, or schema |
+| minor | New capability; backward compatible |
+| patch | Bug fix, model/config update; no redeployment |
+| channel suffix | `-alpha`, `-beta`, `-rc`, `-stable` |
+
+---
+
+## Personal Enterprise Model
+
+The personal enterprise model is the core conceptual framework baked into ogun OS. A **personal enterprise** is a closed-loop value transformation system that converts inputs (time, skill, capital, attention, relationships) into outputs (revenue, assets, reputation, equity) through repeatable, structured operations that compound over time.
+
+ogun OS makes the enterprise explicit at the kernel level. Every process carries `enterprise_context` as a first-class metadata field. Every filesystem path is enterprise-aware. Every transaction is enterprise-attributed. The Ọpọn Protocol enforces isolation at the Security subsystem boundary.
+
+### Enterprise Lifecycle
+
+```
+SEED → COLD → ACTIVATED → CALIBRATED → INTELLIGENT → OPTIMIZED → COMPOUNDING
+                                                                      ↓
+                                                                  ARCHIVED
+```
+
+### Enterprise Types
+
+`Service` · `Creator` · `Founder` · `Investment` · `Hybrid` · `Cooperative` · `Estate` · `Platform`
+
+### Operator Personas
+
+| Persona | Description |
+|---|---|
+| `Creator` | Content creators, artists, writers, musicians, indie developers |
+| `Operator` | Freelancers, consultants, contractors, coaches, gig workers |
+| `Builder` | Entrepreneurs, solopreneurs, micropreneurs, startup founders |
+| `Investor` | Retail investors, real estate, angels, crypto |
+| `CNO` | Chief Navigation Officer — meta-persona running multiple enterprises simultaneously |
+
+### Hypergrid Templates
+
+The Enzo Hypergrid provides persona-specific templates for bootstrapping enterprise configurations:
+
+| Template | Persona |
+|---|---|
+| `hypergrid-freelancer.xml` | Freelancer — consultants, contractors, coaches, gig workers |
+| `hypergrid-creator.xml` | Creator — content creators, artists, writers, musicians |
+| `hypergrid-founder.xml` | Founder — entrepreneurs, solopreneurs, startup founders |
+| `hypergrid-investor.xml` | Investor — retail investors, real estate, angels |
+| `sambara-hypergrid-enterprise-operator.xml` | Enterprise Operator — AI fleet governance |
+| `shango-hypergrid-indie-builder.xml` | Indie Builder — solo developer running the full build chain |
+| `shango-hypergrid-sre-operator.xml` | SRE Operator — production reliability and operations |
+| `eatondo-portfolio.xml` | Complete CNO portfolio — reference implementation |
+
+### Key Metrics
+
+| Metric | Definition |
+|---|---|
+| **EHR** | Effective Hourly Rate = `total_income / total_hours` (including admin, non-billable) |
+| **EAV** | Effort-Adjusted Value = `revenue / (time × cognitive_load_factor)` |
+| **EPV** | Expected Pipeline Value = `Σ(proposed_value × win_probability)` |
+| **TPV** | Total Portfolio Value — aggregate of all enterprise asset valuations |
+| **MRR** | Monthly Recurring Revenue baseline |
+| **Passive Income Ratio** | Passive income ÷ total income |
+
+### Workspaces
+
+A **workspace** is an isolated, persistent, enterprise-aware runtime context that scopes all OS activity — processes, files, agents, telemetry, and layout — to a specific operational domain. Every process in ogun OS carries `workspace_context` as a first-class metadata field, enforced at the kernel level.
+
+**ogun Workspaces** are segmented, structured, configurable operating environments.
+
+---
+
+## Sambara — AI Agent Operating System
+
+**Sambara** is the AI agents operating system embedded within ogun OS. It is not a prompt-chaining tool or LLM wrapper — it is a complete operating system for AI agents. Agents are first-class runtime entities with kernel-level identity (`agent_id`), workspace-bounded execution, operator-governed authority, and a continuously improving intelligence model. Every agent action is written to `~/.ogun/logs/agent-actions.log` (encrypted at rest) before the action completes. Agents cannot bypass or inspect their own governance block.
+
+### Sambara Engines
+
+| Engine | Responsibility |
+|---|---|
+| `sambara-kernel` | Agent lifecycle, memory, scheduling, permissions, execution sessions, health monitoring |
+| `sambara-coordinator` | Multi-agent orchestration, agent groups, coordination protocols, fleet scheduling |
+| `sambara-registry` | Authoritative catalog of all agents; versioning, dependency graphs, impact analysis |
+| `sambara-data` | Feature store, data pipelines, online/offline feature serving |
+| `sambara-learning` | ML and learning: train, evaluate, serve, experiment, update, monitor |
+| `sambara-intelligence` | Higher-order reasoning: structured reasoning, goal-directed planning, knowledge graph |
+| `sambara-optimizer` | Goal optimization, resource allocation, compounding effect modeling |
+| `sambara-governance` | Policy, permissions, autonomy, and audit engine — enforced at OS layer |
+
+### Agent Authority Levels
+
+| Level | Capability |
+|---|---|
+| `OBSERVE` | Read-only; monitors and contributes to MetricSnapshots; no actions |
+| `RECOMMEND` | Generates `InsightRecord`s and drafts for operator review; no automated actions |
+| `EXECUTE_BOUNDED` | Takes actions within explicitly declared parameter ranges; exceptions escalate |
+| `FULL_AUTONOMY` | Operates within declared domain without per-action approval; requires `OPTIMIZED` lifecycle stage |
+
+Authority escalation cannot be triggered by agent logic, policy rules, or Observatory recommendations — it requires explicit operator interaction.
+
+### Agent Enterprise Maturity Progression
+
+```
+COLD → ACTIVATED → CALIBRATING → INTELLIGENT → OPTIMIZED → COMPOUNDING
+```
+
+| Stage | Description |
+|---|---|
+| COLD | No data; all agents at OBSERVE only |
+| ACTIVATED | Onboarding complete; Bookkeeping and Follow-up agents active |
+| CALIBRATING | 7+ days of data; Pricing Agent at RECOMMEND; Follow-up at EXECUTE_BOUNDED |
+| INTELLIGENT | 90+ days; Pricing Agent at EXECUTE_BOUNDED; Acquisition and Execution agents active |
+| OPTIMIZED | Pricing Agent at FULL_AUTONOMY (if effectiveness ≥ 0.75); Productization Agent active |
+| COMPOUNDING | Long track record; all agents at highest earned authority; passive income growing |
+
+### Platform-Registered Domain Agents
+
+| Agent | Namespace | Role | Default Authority |
+|---|---|---|---|
+| `FOLLOWUP_AGENT` | `com.enzo.kogi.followup` | Stale deal follow-up; proposal re-engagement | RECOMMEND |
+| `PRICING_AGENT` | `com.enzo.kogi.pricing` | Rate adjustment within operator floor/ceiling | RECOMMEND → EXECUTE_BOUNDED |
+| `EXECUTION_AGENT` | `com.enzo.kogi.execution` | Task scheduling and delivery reminders | EXECUTE_BOUNDED |
+| `ACQUISITION_AGENT` | `com.enzo.kogi.acquisition` | Outreach when pipeline falls below health floor | EXECUTE_BOUNDED |
+| `BOOKKEEPING_AGENT` | `com.enzo.kogi.bookkeeping` | Transaction reconciliation and attribution | EXECUTE_BOUNDED |
+| `OBSERVATORY_AGENT` | `com.enzo.kogi.observatory` | Daily MetricSnapshot generation; insight surfacing | OBSERVE |
+| `PRODUCTIZATION_AGENT` | `com.enzo.kogi.productization` | Scaffold detection; packaging initiation | EXECUTE_BOUNDED |
+| `QALA_PLANNER` | `com.enzo.qala.planner` | Build graph generation for product construction | EXECUTE_BOUNDED |
+| `QALA_EXECUTOR` | `com.enzo.qala.executor` | Execution of builds via the Factory System | EXECUTE_BOUNDED |
+| `ESTATE_AGENT` | `com.enzo.zamani.estate` | Estate intelligence, maintenance, monetization | OBSERVE → RECOMMEND |
+| `ATTRIBUTION_AGENT` | `com.enzo.ume.attribution` | Revenue attribution in agent-initiated transactions | EXECUTE_BOUNDED |
+| `LIFECYCLE_AGENT` | `com.enzo.lifecycle` | State machine transitions across all platform systems | EXECUTE_BOUNDED |
+| `ORCHESTRATION_AGENT` | `com.enzo.orchestration` | Cross-system workflow routing | COORDINATOR |
+| `PRIVACY_AGENT` | `com.enzo.privacy` | Ọpọn Protocol enforcement in agent-initiated flows | GOVERNANCE |
+
+### LLM Drivers
+
+Sambara is model-agnostic. Built-in drivers:
+
+- `anthropic-claude` — `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`
+- `openai-chatgpt` — `gpt-4o`, `o1`, `o3-mini`
+- `deepseek` — `deepseek-chat`, `deepseek-reasoner`
+- `ollama-local` — any locally served model
+
+Custom drivers can be registered by operators on the `ENTERPRISE` governance tier.
+
+### Agent Coordination Protocols
+
+| Protocol | Description |
+|---|---|
+| Pipeline | Sequential: A → B → C |
+| Parallel | Concurrent: A, B, C simultaneously → Aggregator |
+| Loop | Cyclic: Planner → Analyst → Optimizer → Executor → Observer → Learner → [repeat] |
+| Hierarchy | Coordinator decomposes goals; Workers execute; results aggregated |
+| Consensus | All agents must agree before action; ARBITER resolves disagreements |
+| Blackboard | Shared state board; agents coordinate through state, not direct messages |
+| Auction | Agents bid for tasks based on capability fit |
+| Market | Internal market with task pricing and supply/demand dynamics |
+
+---
+
+## Oshun Platform
+
+The **Oshun Platform** is an intelligence runtime environment that runs on top of ogun OS and orchestrates the development of large-scale enterprises. It connects, coordinates, and orchestrates the Obatala Venture Capital Studios Factory (OVCS) ecosystem.
+
+---
+
+## Third-Party Integration Architecture
+
+ogun OS integrates third-party platforms and services through a structured, capability-gated architecture governed by the Elegua Protocol (IPC), the Ọpọn Protocol (cross-enterprise data isolation), and the ogun Capability Model. All third-party integrations are managed as **registered connectors** accessible from within the relevant Tier 4 User Apps and routed through `ogun-subsystem-network` and the Sambara agent system.
+
+**Integration architecture rules:**
+
+- All third-party connections operate through explicitly declared capability grants in each app's `ogun-component.toml` manifest.
+- No integration may access host OS APIs directly — all external calls are routed through the virtual network adapter using OS sockets only.
+- The Ọpọn Protocol (`SYS-001`) ensures that data from integrations attributed to Enterprise A is never accessible within the context of Enterprise B, even when both enterprises use the same third-party platform.
+- Sambara agents can interact with integrations up to their declared authority level. No agent may trigger a financial transaction through an integration without `FinancialWrite` capability and valid attribution metadata.
+- Integration data surfaces in the semantic VFS under `enterprise://[id]/integrations/[service-name]/` and is addressable by all apps with appropriate capability grants.
+
+**Integration categories (planned for future releases):**
+
+Inbox & Communications · Content Creation & Podcasting · Website & Storefront Builders · Payment & Financial Services · Messaging & Community Platforms · Social Media & Content Distribution · Professional Networks & Forums · Publishing & Newsletters · Creator Monetization & Commerce · Freelance & Gig Marketplaces · On-Demand & Service Marketplaces · Field Service & Trade Tools · Crowdfunding & Community Funding · Investment & Equity Crowdfunding · Creator Subscription & Membership · AI, Knowledge & Productivity Tools · Development & Code Hosting · Project Management & Collaboration · Banking, Payments & Money Transfer · Design & Creative Tools · Calendar, Scheduling & CRM · Writing & Document Tools · Accounting & Finance Tools · Website & Portfolio Builders · Music & Audio Platforms · Delivery, Food & Logistics · Video & Streaming Platforms · Cloud Infrastructure
+
+---
+
+## Component Acronym Reference
+
+### Image & Build Tooling
+
+| Acronym | Full Name | Crate |
+|---|---|---|
+| OIT | ogun Image Tool | `ogun-image-builder` / `ogun_image_tool.exe` |
+| OIB | ogun Image Builder | `ogun-image-builder` |
+| OIF | ogun Image Format | `ogun-image-format` |
+| OTY | ogun Types | `ogun-types` |
+
+### Setup & Installation
+
+| Acronym | Full Name | Binary |
+|---|---|---|
+| OSU | ogun Setup | `ogun-setup.exe` |
+| OIN | ogun Installer | `ogun-installer` |
+| OPM | ogun Package Manager | `opm` CLI |
+
+### SDK Layer
+
+| Acronym | Full Name | Crate |
+|---|---|---|
+| ASDK | App SDK | `ogun-app-sdk` |
+| HSDK | Host SDK | `ogun-host-sdk` |
+| KSDK | Kernel SDK | `ogun-kernel-sdk` |
+| DRSDK | Driver SDK | `ogun-driver-sdk` |
+| SSDK | Service SDK | `ogun-service-sdk` |
+| PSDK | Plugin SDK | `ogun-plugin-sdk` |
+| ESDK | Extension SDK | `ogun-extension-sdk` |
+
+### Kernel Subsystems (Acronym Reference)
+
+| Acronym | # | Crate |
+|---|---|---|
+| KST | 1 | `ogun-subsystem-telemetry` |
+| KSM | 2 | `ogun-subsystem-memory` |
+| KSP | 3 | `ogun-subsystem-process` |
+| KSIPC | 4 | `ogun-subsystem-ipc` |
+| KSSR | 5 | `ogun-subsystem-storage` |
+| KSVFS | 6 | `ogun-subsystem-vfs` |
+| KSSEC | 7 | `ogun-subsystem-security` |
+| KSSVC | 8 | `ogun-subsystem-services` |
+| KSHST | 9 | `ogun-subsystem-host` |
+| KSSES | 10 | `ogun-subsystem-session` |
+| KSDSP | 11 | `ogun-subsystem-display` |
+| KSSTA | 12 | `ogun-subsystem-state` |
+| KSCMP | 13 | `ogun-subsystem-components` |
+| KSNET | 14 | `ogun-subsystem-network` |
+| KSEMU | 15 | `ogun-subsystem-emulation` |
+
+### Tier 4 App Acronyms
+
+| Acronym | App | Full Name |
+|---|---|---|
+| ENZ | `enzo` | Personal Enterprise Management System |
+| KOG | `kogi` | Software-Defined Office Management System |
+| DON | `dongo` | Independent Worker Financial & Accounting Management System |
+| UME | `ume` | Organization Operating System |
+| HSH | `heshima` | Identity Management System |
+| SHG | `shango` | Solution Factory & Management System |
+| IGI | `igi` | Portfolio Management System |
+| AKL | `akeel` | Documentation, Knowledge, Info & Wiki Management System |
+| MOT | `moto` | Project Management System |
+| ZAM | `zamani` | Estate Management System |
+| APO | `apapo` | Hypergrid Domain OS Dev Platform |
+| ORN | `orun` | Starter System & Asset System |
+| MIZ | `mizeez` | Version & Change Control Management System |
+| SHA | `shaba` | Strategic Management System |
+| KAN | `kanna` | Decentralized Cooperative Governance Management System |
+| QAL | `qala` | Observatory, Analytics, Metrics, Insights & Telemetry |
+| SAM | `sambara` | Agent Management System |
+| ZUR | `zuri` | Digital Marketplaces, Exchanges & Stores |
+| DID | `didara` | IP Tracking & Management System |
+| MIS | `misimu` | Schedule, Calendar, Timeline & Event Management System |
+| AYO | `ayo` | Digital Spaces Management System |
+
+---
+
+## Operator Policy System
+
+### System Policies (Unconditional)
+
+| ID | Name | Summary |
+|---|---|---|
+| SYS-001 | Ọpọn Cross-Enterprise Data Isolation | Agents/apps cannot access another enterprise's data without logged consent |
+| SYS-003 | Revenue Attribution Integrity | All financial actions must carry valid attribution IDs |
+| SYS-004 | Agent Authority Bounds | Agents cannot exceed their declared authority level |
+| SYS-006 | Capability-Based Process Authorization | Every action is capability-checked before execution |
+| SYS-007 | Identity Profile Isolation | Heshima profiles cannot be cross-contaminated |
+| SYS-008 | Operator Data Boundary | Agent actions are bounded to the owning operator's data scope |
+
+### Universal Starter Policies (Operator-Configurable Within Bounds)
+
+| ID | Name | Summary |
+|---|---|---|
+| USP-001 | Rate/Yield Floor | Pricing Agent cannot recommend rates below EHR floor |
+| USP-003 | Pipeline Health Floor | Acquisition Agent activates when EPV < 1.5× monthly target |
+| USP-005 | Stale Deal Follow-Up | Follow-up Agent activates when deal stage age > 7 days |
+| USP-006 | Attribution Integrity | Bookkeeping Agent dispatched when unattributed transactions exist |
+| USP-007 | Burnout Protection | Acquisition Agent blocked when effort utilization > 90% |
+
+---
+
+## Namespace URI Scheme Reference
+
+| Prefix | Scope | Example |
+|---|---|---|
+| `enterprise://` | Enterprise-scoped resources and data | `enterprise://accenture-portal/finance/` |
+| `asset://` | Portfolio-registered asset objects | `asset://[asset-id]/` |
+| `artifact://` | Produced deliverable objects | `artifact://[id]/` |
+| `operator://` | Operator-owned identity data | `operator://[id]/profile` |
+| `agent://` | Agent state and execution records | `agent://sambara/[agent-id]/book.json` |
+| `workspace://` | Workspace runtime context | `workspace://[id]/session/` |
+| `service://` | System service registration | `service://sambara-registry/manifest.json` |
+| `system://` | OS runtime and kernel state | `system://security/audit/` |
+| `ipc://` | IPC channels and message buses | `ipc://kogi/engagement.renewed` |
+| `telemetry://` | Telemetry and metric streams | `telemetry://agents/[enterprise-id]/actions` |
+| `config://` | Configuration values | `config://ogun/agents/defaults` |
+| `temp://` | Transient scratch space (auto-cleaned) | `temp://session/[id]/` |
+
+### Agent VFS Path Structure
+
+```
+agent://sambara/[agent-id]/
+├── book.json                   — complete Agent Book
+├── spec/current.yaml           — current agent specification
+├── working/                    — ephemeral session context
+├── episodic/                   — past execution records
+├── semantic/                   — knowledge contributions
+├── shared/                     — signals exposed to other agents
+├── log/[YYYY-MM-DD]            — daily action log
+├── governance/current.json     — current governance config
+└── authority/changes.json      — authority change history
+```
+
+---
+
+## Documents Repository
+
+Standard document types used in the ogun OS software platform:
+
+### Core Engineering Documents
+
+| Acronym | Full Name | Purpose |
+|---|---|---|
+| SDD | Software Design Document | Architecture, components, interfaces, and design decisions. `ogun-architecture-0_1_0-beta.md` is the canonical SDD. |
+| SRS | Software Requirements Specification | Formal specification of functional and non-functional requirements. |
+| ICD | Interface Control Document | Defines interfaces between systems — data formats, protocols, message structures, behavioral contracts. The Elegua Protocol spec is the canonical ICD for ogun OS IPC. |
+| IDD | Interface Design/Definition Document | Implementation-level interface detail: field types, encoding rules, versioning constraints, error handling. |
+| CONOPs | Concept of Operations Document | System from the operator's perspective. `ogun-product-brief.md` and `ogun-charter.md` serve this role. |
+| ATP | Acceptance Test Procedures | Formal test procedures verifying delivered system meets acceptance criteria. Gates beta to release candidate. |
+| RFR | Run for Record | Full acceptance test suite execution under controlled conditions whose results are formally recorded. Precedes each public release. |
+
+### Procurement & Vendor Documents
+
+| Acronym | Full Name | Purpose |
+|---|---|---|
+| RFI | Request for Information | Preliminary market survey before issuing an RFP. |
+| RFP | Request for Proposal | Formal solicitation document inviting vendor proposals. |
+| SOW | Statement of Work | Defines work activities, deliverables, timeline, and terms for a contracted engagement. |
+| MSA | Master Services Agreement | Umbrella contract governing the relationship across multiple engagements. |
+
+### Standards & Compliance Documents
+
+| Acronym | Full Name | Purpose |
+|---|---|---|
+| QMS | Quality Management System | Processes and standards ensuring product quality across the development lifecycle. |
+| SBOM | Software Bill of Materials | Formal record of all components, libraries, and dependencies. Required for supply-chain security audits of `.img` releases. |
+| CVE | Common Vulnerabilities and Exposures | Standardized identifiers for publicly known security vulnerabilities. Referenced in ogun OS security advisories. |
+
+### Operations & Maintenance Documents
+
+| Acronym | Full Name | Purpose |
+|---|---|---|
+| IRP | Incident Response Plan | Procedures for detecting, containing, and recovering from security incidents. |
+| ADR | Architecture Decision Record | Context, decision, and consequences of significant architectural choices. Stored alongside source code. |
+| RUNBOOK | Runbook | Step-by-step operational procedures for managing, deploying, or recovering specific systems. |
+| RCA | Root Cause Analysis | Post-incident document analyzing the chain of events and identifying corrective actions. |
+
+### Release & Delivery Documents
+
+| Acronym | Full Name | Purpose |
+|---|---|---|
+| RN | Release Notes | New features, bug fixes, known issues, and breaking changes for a specific release. |
+| CHANGELOG | Changelog | Machine- and human-readable log of all changes per version. (`CHANGELOG.md` in the ogun repository.) |
+| ROADMAP | Product Roadmap | High-level timeline of planned features, milestones, and releases. (`ROADMAP.md` in the ogun repository.) |
+| PRD | Product Requirements Document | Business goals, user needs, and feature scope. `ogun-os-product-specification.md` is the canonical PRD. |
+
+---
+
+## Platform Status and Build Notes
+
+### Current Release Status
+
+| | |
+|---|---|
+| Current development state | `0.1.0-alpha` (internal) |
+| Planned first public beta | `0.1.0-beta` — Windows x64 Desktop Edition — June 2026 |
+| Owner | Dominic Eaton ([@eatondo](https://gitlab.com/eatondo)) |
+| Organization | The Ogun Foundation |
+| Primary repository | https://gitlab.com/ogun-foundation/ogun |
+| License | GNU General Public License v3.0 |
+
+### Platform Support
+
+| Platform | Host Driver | Display Driver | Status |
+|---|---|---|---|
+| Windows x64 | `ogun-host-windows` | `ogun-display-tauri` | **Beta target — June 2026** |
+| Linux x86_64 | `ogun-host-linux` | `ogun-display-tauri` | Designed; post-beta |
+| Linux ARM64 | `ogun-host-linux` | `ogun-display-tauri` | Designed; post-beta |
+| macOS Apple Silicon | `ogun-host-macos` | `ogun-display-tauri` | Designed; post-beta |
+| Browser (WASM) | `ogun-host-web` | `ogun-display-web` | Designed; post-beta |
+| Android | `ogun-host-android` | `ogun-display-android` | In progress |
+| iOS | `ogun-host-ios` | `ogun-display-ios` | In progress |
+
+### Known Limitations — 0.1.0-beta
+
+- **Windows x64 only.** macOS and Linux targets are designed; post-beta.
+- **Mobile Edition not included.** `ogun-host-android` and `ogun-host-ios` are in progress; not shipping in 0.1.0-beta.
+- **Web Edition not included.** `ogun-host-web` (WASM) is fully designed; not shipping in 0.1.0-beta.
+- **Server Edition not included.** Designed; not shipping in 0.1.0-beta.
+- **Device Edition not included.** Designed; not shipping in 0.1.0-beta.
+- **`enterprise_id` not yet in all IPC messages.** Defined in session context and Elegua Protocol schema; explicit inclusion in all messages is an open issue to be resolved in a patch release.
+- **RustyDB backend.** Migration to the stable persistent backend is scheduled for 0.2.0.
+- **Tier 4 apps — partial set.** 0.1.0-beta includes: `enzo`, `kogi`, `ume`, `shango`, `heshima`, `igi`, `moto`, `dongo`. Remaining apps target subsequent releases.
+
+### Release Gate — 0.1.0-beta → 0.1.0-rc
+
+The following conditions must be met before transitioning from beta to release candidate:
+
+1. `dongo` (Tier 4) development complete — all 0.1.0-beta Rust packages delivered
+2. All four artifact builds passing clean on Windows x64
+3. Three-stage boot verification passing on a clean install
+4. Full session lifecycle (boot → login → session → clean shutdown) verified end-to-end
+5. All design invariants (I-01 through I-35) confirmed enforced
+6. Beta testing phase complete with no P0 blockers outstanding
+
+### Build Quick Reference
+
+```powershell
+# Initialize submodules
+cd C:\dev\ogun
+git submodule update --init --recursive
+
+# Validate workspace shape
+cargo metadata --no-deps
+
+# Full type check
+cargo check --workspace
+
+# Debug build
+cargo build --workspace
+
+# Release build
+cargo build --workspace --release
+
+# Run tests
+cargo test --workspace
+
+# Focused checks (faster during development)
+cd C:\dev\ogun\ogun-runtime && cargo check --workspace
+cd C:\dev\ogun\ogun-sdk && cargo check --workspace
+cd C:\dev\ogun\ogun-devices && cargo check --workspace
+cd C:\dev\ogun\ogun-components && cargo check --workspace
+```
+
+**Build requirements:** Windows x64 · Rust stable with Cargo · Git with submodule support · Node.js and npm (for Tauri tool frontends) · Tauri 2 prerequisites
+
+### Repository Map
+
+| Path | Purpose |
+|---|---|
+| `ogun-os/` | Main OS workspace, clients, host server scaffold, and beta tracking. |
+| `ogun-runtime/` | Runtime crates — types, image format, bootloader, kernel, and session manager. |
+| `ogun-devices/` | Emulator, virtual UEFI, virtual CPU, virtual display, virtual host platform, and virtual network adapter. |
+| `ogun-components/` | Tier-2 and Tier-3 apps, hosts, drivers, and services. |
+| `ogun-apps/` | Tier-4 personal enterprise application suite. |
+| `ogun-sdk/` | Public SDK traits, ABI constants, and component contracts. |
+| `ogun-tools/` | Setup and image tooling, including Tauri-based installer and image tool workspaces. |
+| `ogun-config/` | Seed configuration templates for `ogun.toml`, `display.toml`, `emulation.toml`, `uefi.toml`. |
+| `ogun-artifacts/` | Staging area for built images, installers, checksums, and release metadata. |
+| `ogun-docs/` | Canonical product, architecture, release, and execution-model documents. |
+| `ogun-sites/` | Public site and documentation site sources. |
+| `elegua/` | Typed communication and IPC protocol implementation. |
+| `rustydb/` | Embedded database backend used by the storage subsystem. |
+| `bula/`, `jaku/`, `oya/` | Supporting libraries and experiments used by the wider ecosystem. |
+| `ogun-test-features/` | Test feature sandboxes and prototypes. |
+
+---
+
+## Enum & Status Reference
+
+### Agent Types
+`PLANNER` · `ANALYST` · `OPTIMIZER` · `EXECUTOR` · `OBSERVER` · `LEARNER` · `COORDINATOR` · `ROUTER` · `ARBITER` · `AGGREGATOR` · `GOVERNANCE` · `META` · `DOMAIN`
+
+### Agent Status
+`DRAFT` · `STAGED` · `ACTIVE` · `IDLE` · `RUNNING` · `LEARNING` · `PAUSED` · `DEGRADED` · `FAILED` · `DEPRECATED` · `RETIRED`
+
+### Coordination Protocols
+`PIPELINE` · `PARALLEL` · `LOOP` · `HIERARCHY` · `CONSENSUS` · `AUCTION` · `BLACKBOARD` · `MARKET`
+
+### Workspace Status
+`DRAFT` · `ACTIVE` · `PAUSED` · `CLOSING` · `ARCHIVED`
+
+### Enterprise Lifecycle
+`COLD` · `ACTIVATED` · `CALIBRATING` · `INTELLIGENT` · `OPTIMIZED` · `COMPOUNDING`
+
+### Component Kinds
+`Driver` (rlib, statically linked, host OS boundary) · `Module` (cdylib, boot-loaded, kernel-level) · `Plugin` (cdylib, isolated feature addition, no operator approval required) · `Extension` (cdylib, behavior override, operator approval required) · `Shell Package` (cdylib Plugin subtype, adds shell commands)
+
+### Process Lifecycle
+`CREATED` → `INITIALIZED` → `RUNNING` → `SUSPENDED` → `TERMINATED`
+
+### Health Signal
+`HEALTHY` · `WARNING` · `DEGRADED` · `CRITICAL`
+
+---
+
 *ogun OS · v0.1.0-beta · Project Ogún · 2026*
 *Owner: Dominic Eaton (@eatondo)*
 *Document: DESIGN.md*
+*Licensed under GNU General Public License v3.0*
