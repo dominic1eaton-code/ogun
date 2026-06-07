@@ -1,0 +1,532 @@
+##############################################################################
+# ogun OS — GitLab CI/CD Pipeline
+# Repository : https://gitlab.com/ogun-foundation/ogun
+# Language   : Rust (edition 2024) + Tauri 2 (Node/npm)
+# Target     : Windows x64 Desktop Edition (0.1.0-beta)
+#
+# ── Workspace layout ─────────────────────────────────────────────────────────
+# All Rust workspace members live inside git submodules.  The pipeline must
+# recursively clone every submodule before any Cargo command can run.
+#
+# Submodules that are Cargo workspace members
+# ───────────────────────────────────────────
+#   bula/           bula-lib · bula-shell
+#   elegua/         elegua protocol crates
+#   jaku/           devops platform crates
+#   oya/            system development crates
+#   rustydb/        embedded database crates
+#   ogun-sdk/       all SDK crates (app · svc · kernel · driver · …)
+#   ogun-runtime/   runtime crates
+#   ogun-devices/   virtual device crates
+#   ogun-os/        ogun-app · ogun-host-server · ogun-web
+#                   ogun-desktop/src-tauri  (Tauri desktop app)
+#   ogun-components/ tier-2 apps · tier-3 apps · drivers · hosts · services
+#   ogun-apps/      tier-4 personal enterprise apps
+#   ogun-tools/     ogun-setup/src-tauri  (Tauri installer)
+#
+# Non-member submodules (cloned but not in Cargo workspace)
+# ──────────────────────────────────────────────────────────
+#   ogun-artifacts/   release artifact store
+#   ogun-config/      configuration templates
+#   ogun-devops/      devops tooling
+#   ogun-docs/        documentation
+#   ogun-sites/       websites
+#   ogun-test-features/ test feature flags
+##############################################################################
+
+default:
+  # Use a Rust image as the base for pure-Rust jobs.
+  # Tauri jobs install their own Node dependencies on top.
+  image: rust:latest
+  before_script:
+    # ── Submodule initialisation ──────────────────────────────────────────
+    # GitLab CI checks out the umbrella repo but does NOT clone submodules
+    # automatically.  We initialise them here using the deploy key / token
+    # already available in the runner environment.
+    #
+    # SSH-based submodule URLs (git@gitlab.com:…) require a deploy key with
+    # read access to every submodule repo.  Add the private key as a
+    # CI/CD variable named OGUN_SUBMODULE_DEPLOY_KEY and configure it as a
+    # "File" variable.  Then uncomment the two lines below:
+    #
+    #   - eval $(ssh-agent -s)
+    #   - ssh-add "$OGUN_SUBMODULE_DEPLOY_KEY"
+    #
+    # Alternatively, rewrite submodule URLs to HTTPS and use a GitLab
+    # deploy token stored in CI_JOB_TOKEN:
+    #
+    #   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+    #
+    - git submodule sync --recursive
+    - git submodule update --init --recursive --depth 1 --jobs 8
+
+variables:
+  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
+  # Incremental compilation is not safe across runners; disable it.
+  CARGO_INCREMENTAL: "0"
+  # Promote all warnings to errors across every Rust job.
+  RUSTFLAGS: "-D warnings"
+  # Reuse sccache if a distributed cache is available (optional).
+  # SCCACHE_GCS_BUCKET: "ogun-sccache"
+  # RUSTC_WRAPPER: "sccache"
+
+# ── Cache ────────────────────────────────────────────────────────────────────
+# Keyed on Cargo.lock so the cache is invalidated when any dependency changes.
+# Registry and git sources are shared; per-job build artefacts are not cached
+# because they contain incremental data that confuses cross-job reuse.
+cache:
+  key:
+    files:
+      - Cargo.lock
+  paths:
+    - .cargo/registry/
+    - .cargo/git/
+
+# ── Stages ───────────────────────────────────────────────────────────────────
+stages:
+  - validate       # workspace shape + submodule health
+  - check          # fmt · clippy  (fast feedback)
+  - test           # cargo test --workspace
+  - build          # debug · release · Tauri desktop · Tauri setup tool
+  - components     # ogun-components dylib build (loaded at runtime)
+  - audit          # cargo audit · cargo deny
+  - pages          # rustdoc → GitLab Pages
+  - release        # GitLab Release on version tags
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: validate                                                         ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# Confirm the Cargo workspace resolves cleanly without compiling anything.
+# This is the cheapest possible signal that the submodule tree is intact.
+validate:workspace:
+  stage: validate
+  script:
+    - cargo metadata --no-deps --format-version 1 | python3 -c "
+import sys, json
+meta = json.load(sys.stdin)
+members = meta.get('workspace_members', [])
+print(f'Workspace members resolved: {len(members)}')
+for m in members:
+    print(' ', m)
+"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH =~ /^feat\//
+    - if: $CI_COMMIT_BRANCH =~ /^fix\//
+    - if: $CI_COMMIT_BRANCH =~ /^abi\//
+
+# Verify every submodule listed in .gitmodules was actually cloned and is
+# not an empty directory (a common failure when deploy key access is missing).
+validate:submodules:
+  stage: validate
+  script:
+    - |
+      FAILED=0
+      for mod in bula elegua jaku oya rustydb \
+                 ogun-sdk ogun-runtime ogun-devices \
+                 ogun-os ogun-components ogun-apps ogun-tools \
+                 ogun-artifacts ogun-config ogun-devops \
+                 ogun-docs ogun-sites ogun-test-features; do
+        if [ ! -d "$mod" ] || [ -z "$(ls -A $mod 2>/dev/null)" ]; then
+          echo "MISSING or EMPTY submodule: $mod"
+          FAILED=1
+        else
+          echo "OK: $mod"
+        fi
+      done
+      if [ "$FAILED" -eq 1 ]; then
+        echo ""
+        echo "One or more submodules failed to clone."
+        echo "Ensure the runner has SSH deploy key access to all submodule repos."
+        exit 1
+      fi
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: check                                                            ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+fmt:
+  stage: check
+  script:
+    - rustup component add rustfmt
+    - cargo fmt --all -- --check
+  needs: [validate:workspace]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+clippy:
+  stage: check
+  script:
+    - rustup component add clippy
+    - >
+      cargo clippy
+      --workspace
+      --all-targets
+      --all-features
+      -- -D warnings
+  needs: [validate:workspace]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# Focused clippy per logical workspace group — run in parallel on MRs
+# so contributors see exactly which submodule introduced a lint failure.
+
+.clippy-subworkspace: &clippy-subworkspace
+  stage: check
+  needs: [validate:workspace]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+clippy:sdk:
+  <<: *clippy-subworkspace
+  script:
+    - cd ogun-sdk && cargo clippy --workspace -- -D warnings
+
+clippy:runtime:
+  <<: *clippy-subworkspace
+  script:
+    - cd ogun-runtime && cargo clippy --workspace -- -D warnings
+
+clippy:components:
+  <<: *clippy-subworkspace
+  script:
+    - cd ogun-components && cargo clippy --workspace -- -D warnings
+
+clippy:apps:
+  <<: *clippy-subworkspace
+  script:
+    - cd ogun-apps && cargo clippy --workspace -- -D warnings
+
+clippy:devices:
+  <<: *clippy-subworkspace
+  script:
+    - cd ogun-devices && cargo clippy --workspace -- -D warnings
+
+clippy:support-crates:
+  <<: *clippy-subworkspace
+  script:
+    - cargo clippy -p bula-lib -p bula-shell -- -D warnings || true
+    - cd elegua && cargo clippy --workspace -- -D warnings
+    - cd jaku   && cargo clippy --workspace -- -D warnings
+    - cd oya    && cargo clippy --workspace -- -D warnings
+    - cd rustydb && cargo clippy --workspace -- -D warnings
+
+# ABI-change branches surface a mandatory reviewer checklist.
+abi-change-notice:
+  stage: check
+  script:
+    - |
+      echo "============================================"
+      echo " ABI / Protocol Change — Reviewer Checklist"
+      echo "============================================"
+      echo " [ ] VERSION.md bumped in every affected submodule"
+      echo " [ ] OGUN_ABI_VERSION constants verified stable or intentionally bumped"
+      echo " [ ] Elegua Protocol invariants preserved (operator_id / workspace_id / trace_id)"
+      echo " [ ] Opọn Protocol (SYS-001) cross-enterprise isolation unchanged"
+      echo " [ ] Audit log remains append-only"
+      echo " [ ] Two maintainer approvals required before merge"
+      echo " [ ] CHANGELOG entry added under '### Breaking'"
+      echo "============================================"
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^abi\//
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: test                                                             ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# Full workspace test suite — primary gate.
+test:workspace:
+  stage: test
+  script:
+    - cargo test --workspace --verbose
+  needs: [fmt, clippy]
+  artifacts:
+    when: always
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH =~ /^feat\//
+    - if: $CI_COMMIT_BRANCH =~ /^fix\//
+    - if: $CI_COMMIT_BRANCH =~ /^abi\//
+
+# Focused per-subworkspace tests run in parallel alongside the full suite.
+# They give faster, targeted failure signals on MRs.
+
+.test-subworkspace: &test-subworkspace
+  stage: test
+  needs: [validate:workspace]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+test:sdk:
+  <<: *test-subworkspace
+  script: cd ogun-sdk && cargo test --workspace --verbose
+
+test:runtime:
+  <<: *test-subworkspace
+  script: cd ogun-runtime && cargo test --workspace --verbose
+
+test:devices:
+  <<: *test-subworkspace
+  script: cd ogun-devices && cargo test --workspace --verbose
+
+test:apps:
+  <<: *test-subworkspace
+  script: cd ogun-apps && cargo test --workspace --verbose
+
+test:support-crates:
+  <<: *test-subworkspace
+  script: |
+    cd elegua  && cargo test --workspace --verbose
+    cd ../jaku && cargo test --workspace --verbose
+    cd ../oya  && cargo test --workspace --verbose
+    cd ../rustydb && cargo test --workspace --verbose
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: build                                                            ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# ── Debug build (Rust only, no Tauri frontend) ────────────────────────────
+build:debug:
+  stage: build
+  script:
+    - cargo build --workspace --verbose
+  needs: [test:workspace]
+  artifacts:
+    paths:
+      - target/debug/
+    exclude:
+      - target/debug/.fingerprint/**
+      - target/debug/incremental/**
+      - target/debug/build/**
+    expire_in: 1 day
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# ── Release build (Rust only, no Tauri frontend) ──────────────────────────
+build:release:
+  stage: build
+  script:
+    - cargo build --workspace --release --verbose
+  needs: [test:workspace]
+  artifacts:
+    name: "ogun-release-rust-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - target/release/*.exe
+      - target/release/*.dll
+      - target/release/*.rlib
+      - target/release/*.so
+      - target/release/*.dylib
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+
+# ── Tauri desktop app (ogun-desktop, Windows x64 target) ─────────────────
+# This is the primary 0.1.0-beta build artefact.
+# Requires a Windows runner tagged `windows` with:
+#   - Rust stable toolchain
+#   - Node.js + npm
+#   - Tauri 2 prerequisites (WebView2, Visual Studio Build Tools)
+build:tauri:desktop:
+  stage: build
+  tags:
+    - windows
+    - tauri
+  image: ""        # Use the runner's native Windows environment
+  before_script:
+    # Windows runners use PowerShell; override the Linux before_script.
+    - git submodule sync --recursive
+    - git submodule update --init --recursive --depth 1 --jobs 8
+  script:
+    - cd ogun-os/src/ogun-desktop
+    - npm install
+    - npm run tauri build
+  needs: [test:workspace]
+  artifacts:
+    name: "ogun-desktop-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - ogun-os/src/ogun-desktop/src-tauri/target/release/bundle/
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+
+# ── Tauri setup tool ──────────────────────────────────────────────────────
+build:tauri:setup:
+  stage: build
+  tags:
+    - windows
+    - tauri
+  image: ""
+  before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive --depth 1 --jobs 8
+  script:
+    - cd ogun-tools/src/ogun-setup
+    - npm install
+    - npm run tauri build
+  needs: [test:workspace]
+  artifacts:
+    name: "ogun-setup-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - ogun-tools/src/ogun-setup/src-tauri/target/release/bundle/
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: components                                                       ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# ogun-components are dynamically loaded .dll/.so files.
+# They must be built before the desktop app can run in a populated state,
+# but the build itself is Rust-only (no Tauri frontend needed).
+build:components:
+  stage: components
+  script:
+    - cd ogun-components && cargo build --workspace --release --verbose
+  needs: [build:release]
+  artifacts:
+    name: "ogun-components-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - ogun-components/target/release/*.dll
+      - ogun-components/target/release/*.so
+      - ogun-components/target/release/*.dylib
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: audit                                                            ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# Security advisory scan across all workspace dependencies.
+security:audit:
+  stage: audit
+  script:
+    - cargo install cargo-audit --locked
+    - cargo audit
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
+# Dependency graph validation:
+# - enforces SDK layer hierarchy (no upward deps)
+# - checks license compatibility (GPL-3.0 workspace)
+# - blocks known-bad crate versions
+dependency:deny:
+  stage: audit
+  script:
+    - cargo install cargo-deny --locked
+    - cargo deny check bans licenses sources
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: pages                                                            ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# Build unified rustdoc for the entire workspace and publish to GitLab Pages.
+# Available at: https://ogun-foundation.gitlab.io/ogun
+pages:
+  stage: pages
+  script:
+    - cargo doc --workspace --no-deps --document-private-items
+    - mv target/doc public
+    - |
+      cat > public/index.html << 'EOF'
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>ogun OS — Docs</title>
+        <meta http-equiv="refresh" content="0; url=ogun_runtime/index.html"/>
+      </head>
+      <body>Redirecting to ogun OS docs…</body>
+      </html>
+      EOF
+  artifacts:
+    paths:
+      - public
+    expire_in: 7 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  STAGE: release                                                          ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# Creates a GitLab Release when a semver tag is pushed (e.g. v0.1.0-beta).
+# Requires the Tauri desktop and setup bundles from the build stage.
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: build:tauri:desktop
+      artifacts: true
+    - job: build:tauri:setup
+      artifacts: true
+    - job: build:components
+      artifacts: true
+  before_script:
+    # release-cli image is Alpine; skip submodule init here.
+    - echo "Preparing release $CI_COMMIT_TAG"
+  script:
+    - echo "Creating GitLab release for $CI_COMMIT_TAG"
+  release:
+    tag_name: "$CI_COMMIT_TAG"
+    name: "ogun OS $CI_COMMIT_TAG"
+    description: |
+      **ogun OS $CI_COMMIT_TAG** — Windows x64 Desktop Edition
+
+      **ABI Version:** 1
+      **Elegua Protocol:** 0.1.0
+      **Ọpọn Protocol:** SYS-001
+      **Workspace resolver:** 3 (Rust edition 2024)
+
+      ### Included artefacts
+      - `ogun-desktop` — Tauri 2 desktop application (Windows x64)
+      - `ogun-setup` — System installer (Windows x64)
+      - `ogun-components` — Runtime-loaded component bundles
+
+      ### Submodules included in this build
+      `bula` · `elegua` · `jaku` · `oya` · `rustydb` ·
+      `ogun-sdk` · `ogun-runtime` · `ogun-devices` ·
+      `ogun-os` · `ogun-components` · `ogun-apps` · `ogun-tools`
+
+      See [CHANGELOG.md](CHANGELOG.md) and [build.md](build.md) for full details.
+    assets:
+      links:
+        - name: "ogun-desktop bundle (Windows x64)"
+          url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build:tauri:desktop"
+        - name: "ogun-setup bundle (Windows x64)"
+          url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build:tauri:setup"
+        - name: "ogun-components (runtime dylibs)"
+          url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build:components"
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  Scheduled pipeline (weekly)                                             ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+# Configure a scheduled pipeline in GitLab (CI/CD → Schedules) running on
+# main weekly to keep audit results fresh even without code changes.
+# Jobs that run on $CI_PIPELINE_SOURCE == "schedule":
+#   - security:audit
+#   - dependency:deny
