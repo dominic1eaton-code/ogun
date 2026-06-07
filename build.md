@@ -93,7 +93,7 @@ cargo run
 
 ## tagging
 
-
+python ./update_version.py --version 0.1.0 --gate alpha --maturity dev --all-files --commit --recursive --push main
 
 ```
 
