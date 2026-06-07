@@ -2,11 +2,11 @@
 resolver = "3"
 members = [
   # Shared protocol, storage, and support crates.
-  "bula",
-  "elegua",
-  "jaku",
-  "oya",
-  "rustydb",
+  "bula/src/*",
+  "elegua/src/*",
+  "jaku/src/*",
+  "oya/src/*",
+  "rustydb/src/*",
 
   # Ogun OS workspaces pulled in through git submodules.
   "ogun-apps/src/*",
@@ -16,7 +16,11 @@ members = [
   "ogun-components/src/hosts/*",
   "ogun-components/src/services/*",
   "ogun-devices/src/*",
-  "ogun-os",
+  "ogun-os/src/ogun-app",
+  "ogun-os/src/ogun-host-server",
+  "ogun-os/src/ogun-mobile",
+  "ogun-os/src/ogun-web",
+  "ogun-os/src/ogun-desktop/src-tauri",
   "ogun-runtime/src/*",
   "ogun-sdk/src/*",
   "ogun-tools/src/ogun-image-tool/src-tauri",

@@ -79,6 +79,18 @@ cargo ws list
 ## username: adeyemi
 ## password: ogun2025
 
+
+## build and run image tool and installer
+
+cd ogun-tools/src/ogun-image-tool/src-tauri
+cargo build
+cargo run
+
+
+cd ogun-tools/src/ogun-setup/src-tauri
+cargo build
+cargo run
+
 ```
 
 ## Submodules
