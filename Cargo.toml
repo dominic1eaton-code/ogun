@@ -18,12 +18,12 @@ members = [
   "ogun-devices/src/*",
   "ogun-os/src/ogun-app",
   "ogun-os/src/ogun-host-server",
-  "ogun-os/src/ogun-mobile",
+  # "ogun-os/src/ogun-mobile",
   "ogun-os/src/ogun-web",
   "ogun-os/src/ogun-desktop/src-tauri",
   "ogun-runtime/src/*",
   "ogun-sdk/src/*",
-  "ogun-tools/src/ogun-image-tool/src-tauri",
+  # "ogun-tools/src/ogun-image-tool/src-tauri",
   "ogun-tools/src/ogun-setup/src-tauri",
 ]
 
