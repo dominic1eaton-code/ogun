@@ -52,3 +52,6 @@
 [submodule "ogun-devops"]
 	path = ogun-devops
 	url = git@gitlab.com:ogun-foundation/ogun-devops.git
+[submodule "ogun-cyber"]
+	path = ogun-cyber
+	url = git@gitlab.com:ogun-foundation/ogun-cyber.git
