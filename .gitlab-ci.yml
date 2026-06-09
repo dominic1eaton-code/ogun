@@ -10,31 +10,31 @@
 
 include:
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/configure.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/validate.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/check.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/test.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/build.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/sast.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/package.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/deploy.yml'
   - project: 'ogun-foundation/ogun-devops'
-    ref: main
+    ref: develop
     file: 'ogun-cicd/version.yml'
 
 # ---------------------------------------------------------------------------
