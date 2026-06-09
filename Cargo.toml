@@ -25,6 +25,7 @@ members = [
   "ogun-sdk/src/*",
   # "ogun-tools/src/ogun-image-tool/src-tauri",
   "ogun-tools/src/ogun-setup/src-tauri",
+  "ogun-test-features"
 ]
 
 [workspace.package]
