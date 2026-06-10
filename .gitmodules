@@ -34,9 +34,9 @@
 [submodule "ogun-sites"]
 	path = ogun-sites
 	url = git@gitlab.com:ogun-foundation/ogun-sites.git
-[submodule "ogun-test-features"]
-	path = ogun-test-features
-	url = git@gitlab.com:ogun-foundation/ogun-test-features.git
+[submodule "ogun-experimental"]
+	path = ogun-experimental
+	url = git@gitlab.com:ogun-foundation/ogun-experimental.git
 [submodule "ogun-tools"]
 	path = ogun-tools
 	url = git@gitlab.com:ogun-foundation/ogun-tools.git
