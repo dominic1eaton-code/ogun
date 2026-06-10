@@ -194,7 +194,7 @@ ogun-desktop.exe
 | `elegua/` | Ogun's typed communication and IPC protocol. |
 | `rustydb/` | Embedded database backend used by the storage subsystem. |
 | `bula/`, `jaku/`, `oya/` | Supporting libraries and experiments used by the wider ecosystem. |
-| `ogun-test-features/` | Test feature sandboxes and prototypes. |
+| `ogun-experimental/` | Test feature sandboxes and prototypes. |
 
 ---
 

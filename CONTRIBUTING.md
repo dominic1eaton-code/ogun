@@ -26,7 +26,7 @@ merge request. Do not silently broaden the release scope.
   configuration loading, and app lifecycle behavior.
 - Clarify docs when architecture, release scope, or developer setup is hard to
   follow.
-- Prototype features in `ogun-test-features/` before promoting them into a
+- Prototype features in `ogun-experimental/` before promoting them into a
   runtime workspace.
 - Improve platform support while preserving the shared host, driver, and SDK
   contracts.

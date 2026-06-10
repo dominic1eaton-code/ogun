@@ -1726,7 +1726,7 @@ cd C:\dev\ogun\ogun-components && cargo check --workspace
 | `elegua/` | Typed communication and IPC protocol implementation. |
 | `rustydb/` | Embedded database backend used by the storage subsystem. |
 | `bula/`, `jaku/`, `oya/` | Supporting libraries and experiments used by the wider ecosystem. |
-| `ogun-test-features/` | Test feature sandboxes and prototypes. |
+| `ogun-experimental/` | Test feature sandboxes and prototypes. |
 
 ---
 

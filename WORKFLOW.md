@@ -75,7 +75,7 @@ independently cloneable, buildable repository with its own CI pipeline.
 | `ogun-docs` | `ogun-foundation/ogun-docs` | Canonical product, architecture, release, and execution-model specifications |
 | `ogun-sites` | `ogun-foundation/ogun-sites` | Public site and documentation site sources (Cloudflare Workers Pages) |
 | `ogun-devops` | `ogun-foundation/ogun-devops` | Shared CI/CD YAML templates and `update_version.py` script |
-| `ogun-test-features` | `ogun-foundation/ogun-test-features` | Experimental sandbox crates and prototype workspaces |
+| `ogun-experimental` | `ogun-foundation/ogun-experimental` | Experimental sandbox crates and prototype workspaces |
 
 ---
 
@@ -1104,10 +1104,10 @@ The umbrella `ogun` repository is mirrored to GitHub
 one-way from GitLab. Never open pull requests or push directly to the GitHub
 or Codeberg mirrors. All contributions must go through GitLab merge requests.
 
-### `ogun-test-features`
+### `ogun-experimental`
 
 This submodule is explicitly excluded from release scope. Branches in
-`ogun-test-features` are not required to follow the same naming convention or
+`ogun-experimental` are not required to follow the same naming convention or
 maintain CI green status. However, any prototype that is promoted into a
 production workspace must follow the full workflow from that point forward:
 clean history, tests, documentation, and full CI passage.

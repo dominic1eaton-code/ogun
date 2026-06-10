@@ -85,7 +85,7 @@ variables:
     ogun-sdk ogun-runtime ogun-devices
     ogun-os ogun-components ogun-apps ogun-tools
     ogun-artifacts ogun-config ogun-devops
-    ogun-docs ogun-sites ogun-test-features
+    ogun-docs ogun-sites ogun-experimental
 
 # ---------------------------------------------------------------------------
 # STAGE: validate — override to use umbrella submodule list
@@ -101,7 +101,7 @@ validate:submodules:
       ogun-sdk ogun-runtime ogun-devices
       ogun-os ogun-components ogun-apps ogun-tools
       ogun-artifacts ogun-config ogun-devops
-      ogun-docs ogun-sites ogun-test-features
+      ogun-docs ogun-sites ogun-experimental
 
 # ---------------------------------------------------------------------------
 # STAGE: check — per-subworkspace clippy for targeted feedback

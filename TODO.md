@@ -15,7 +15,7 @@ concrete sub-tasks and recommended owners/places to implement work.
 - Key top-level projects and folders:
   - ogun-os, ogun-runtime, ogun-components, ogun-sdk, ogun-tools, ogun-apps
   - ogun-artifacts, ogun-docs, ogun-devices, ogun-config, ogun-sites
-  - ogun-test-features, ogun-devops, bula, elegua, jaku, oya, rustydb, aya/oya
+  - ogun-experimental, ogun-devops, bula, elegua, jaku, oya, rustydb, aya/oya
 - Status notes from quick scan:
   - The workspace is large and contains many example/test crates and Tauri frontends.
   - Several manifests and crate path dependencies are stale (referencing moved/old ogun-types locations).
@@ -43,7 +43,7 @@ concrete sub-tasks and recommended owners/places to implement work.
 ### 2) implement virtual hardware loops
 
 - Goal: implement stable, testable device tick loops and a device trait for beta.
-- Where: `ogun-devices`, `ogun-test-features/virtual_*`, `ogun-emulator` (planned in `ogun-os` or `ogun-runtime`).
+- Where: `ogun-devices`, `ogun-experimental/virtual_*`, `ogun-emulator` (planned in `ogun-os` or `ogun-runtime`).
 - Actions:
   - Define `OgunDevice` trait (tick lifecycle, init/shutdown, serialize state) in `ogun-device-sdk`.
   - Implement `ogun-virtual-cpu`, `ogun-virtual-display-monitor`, `ogun-virtual-network-adapter`, `ogun-virtual-platform-host` as rlib components.
@@ -444,7 +444,7 @@ release 0.1.0 beta !
 
 - [ ] Implement `ogun-virtual-network-adapter` as a software-emulated NIC over host OS sockets.
 - [ ] Replace placeholder startup text.
-- [ ] Decide what from `ogun-test-features/ogunnet` is promoted into production crates.
+- [ ] Decide what from `ogun-experimental/ogunnet` is promoted into production crates.
 - [ ] Implement OgunNet node identity.
 - [ ] Implement secure frame framing.
 - [ ] Implement handshake timeout.
@@ -585,7 +585,7 @@ release 0.1.0 beta !
 
 ## P1: Test Sandboxes And Prototype Promotion
 
-- [ ] Audit `ogun-test-features` for prototypes that should be promoted into production modules.
+- [ ] Audit `ogun-experimental` for prototypes that should be promoted into production modules.
 - [ ] Specifically evaluate:
   - `ogunnet`
   - `virtual_monitor`
@@ -598,7 +598,7 @@ release 0.1.0 beta !
   - `bula`
   - `test_tauri_app_0`
 - [ ] Move production-ready prototype code into the owning runtime/component/device/tool submodule.
-- [ ] Leave experimental code in `ogun-test-features` with clear labels and dates.
+- [ ] Leave experimental code in `ogun-experimental` with clear labels and dates.
 - [ ] Remove checked-in binaries from test feature directories unless intentionally retained and documented.
 - [ ] Add README coverage for how to run each test feature.
 - [ ] Add a promotion checklist for turning a sandbox into production code.
