@@ -1,44 +1,229 @@
+# ── Ogun OS — root workspace Cargo.toml ──────────────────────────────────────
+#
+# This file is the single source of truth for the entire ogun monorepo.
+# All git-submodule crate trees are listed here; comment a subtree out to
+# isolate it during development. Each submodule that contains its own nested
+# workspace (bula, elegua, jaku, oya, ogun-apps, …) is intentionally NOT
+# declared as a workspace root here — Cargo's resolver="3" flattens them
+# through the members glob.
+#
+# Submodule layout (from .gitmodules):
+#   bula            — Bula UI abstraction protocol
+#   elegua          — Elegua capability-gated IPC protocol
+#   jaku            — Jaku tagging / metadata library
+#   oya             — Oya component lifecycle framework
+#   rustydb         — RustyDB embedded SQLite layer
+#   ogun-sdk        — All SDK traits (app / component / device / driver / …)
+#   ogun-runtime    — Bootloader + kernel crates
+#   ogun-devices    — Virtual hardware (CPU, emulator, UEFI, …)
+#   ogun-components — OS component tree (tier-2, tier-3, drivers, hosts, …)
+#   ogun-apps       — Tier-4 user-facing apps (enzo, kogi, dongo, …)
+#   ogun-os         — Desktop / mobile / web / server binaries
+#   ogun-tools      — Developer tooling (IDE, setup wizard)
+#   ogun-experimental — Scratch / prototyping workspace
+#   ogun-artifacts  — Release artefact store (no Rust crates)
+#   ogun-config     — Configuration schemas (no Rust crates)
+#   ogun-docs       — Documentation (no Rust crates)
+#   ogun-sites      — Marketing / docs sites (no Rust crates)
+#   ogun-devops     — CI/CD and infrastructure (no Rust crates)
+#   ogun-cyber      — Security workspace (separate Cargo workspace)
+
 [workspace]
 resolver = "3"
-members = [
-  # Shared protocol, storage, and support crates.
-  # "bula/src/*",
-  # "elegua/src/*",
-  # "jaku/src/*",
-  # "oya/src/*",
-  # "rustydb",
 
-  # Ogun OS workspaces pulled in through git submodules.
-  # "ogun-apps/src/*",
+members = [
+  # ── Shared protocol, storage, and support crates ─────────────────────────
+  "bula/src/*",
+  "elegua/src/*",
+  "jaku/src/*",
+  "oya/src/*",
+  "rustydb",
+
+  # ── Ogun SDK ─────────────────────────────────────────────────────────────
+  "ogun-sdk/src/sdk/*",
+  "ogun-sdk/src/utility/*",
+
+  # ── Ogun runtime ─────────────────────────────────────────────────────────
+  "ogun-runtime/src/*",
+
+  # ── Ogun devices ─────────────────────────────────────────────────────────
+  "ogun-devices/src/*",
+
+  # # ── Ogun OS components ───────────────────────────────────────────────────
   # "ogun-components/src/apps/tier-2/*",
   # "ogun-components/src/apps/tier-3/*",
   # "ogun-components/src/drivers/*",
+  # "ogun-components/src/extensions/*",
   # "ogun-components/src/hosts/*",
   # "ogun-components/src/services/*",
-  # "ogun-devices/src/*",
+
+  # # ── Ogun Tier-4 apps ─────────────────────────────────────────────────────
+  # "ogun-apps/src/*",
+
+  # # ── Ogun OS binaries ─────────────────────────────────────────────────────
   # "ogun-os/src/ogun-app",
   # "ogun-os/src/ogun-host-server",
+  "ogun-os/src/ogun-desktop/src-tauri",
   "ogun-os/src/ogun-mobile/src-tauri",
+  "ogun-os/src/ogun-server",
   # "ogun-os/src/ogun-web",
-  # "ogun-os/src/ogun-desktop/src-tauri",
-  # "ogun-runtime/src/*",
-  # "ogun-sdk/src/*",
-  # "ogun-tools/src/ogun-image-tool/src-tauri",
-  # "ogun-tools/src/ogun-setup/src-tauri",
-  # "ogun-experimental"
+
+  # ── Ogun developer tools ─────────────────────────────────────────────────
+  "ogun-tools/src/ogun-ide/src-tauri",
+  "ogun-tools/src/ogun-setup/src-tauri",
+
+  # ── Experimental / sandbox ───────────────────────────────────────────────
+  # "ogun-experimental",  # uncomment when prototyping across the full tree
 ]
 
+# ── Shared package metadata ───────────────────────────────────────────────────
 [workspace.package]
-version = "0.1.0-alpha.3"
-edition = "2024"
-license = "GPL-3.0"
-authors = ["Dominic Eaton", "Ogun Foundation"]
-publish = false
+version       = "0.1.0-alpha.3"
+edition       = "2024"
+rust-version  = "1.85"
+license       = "GPL-3.0"
+license-file  = "LICENSE.md"
+authors       = ["Dominic Eaton <dominic@ogunfoundation.org>", "Ogun Foundation <foundation@ogunfoundation.org>"]
+homepage      = "https://ogunos.io"
+repository    = "https://gitlab.com/ogun-foundation/ogun"
+documentation = "https://gitlab.com/ogun-foundation/ogun/-/wikis"
+readme        = "README.md"
+publish       = false
+keywords      = ["ogun", "os", "operating-system", "independent-worker", "tauri"]
+categories    = ["os", "development-tools"]
 
+# ── Workspace-wide dependency table ──────────────────────────────────────────
+# Every crate in the workspace SHOULD inherit from here via `.workspace = true`
+# rather than re-specifying versions independently.
+[workspace.dependencies]
+
+# ── Internal: shared protocol / support libraries ────────────────────────────
+bula-lib   = { path = "bula/src/bula-lib" }
+elegua-lib = { path = "elegua/src/elegua-lib" }
+jaku-lib   = { path = "jaku/src/jaku-lib" }
+oya-lib    = { path = "oya/src/oya-lib" }
+rustydb    = { path = "rustydb" }
+
+# ── Internal: Ogun SDK — trait surfaces ──────────────────────────────────────
+ogun-app-sdk       = { path = "ogun-sdk/src/sdk/ogun-app-sdk" }
+ogun-component-sdk = { path = "ogun-sdk/src/sdk/ogun-component-sdk" }
+ogun-device-sdk    = { path = "ogun-sdk/src/sdk/ogun-device-sdk" }
+ogun-driver-sdk    = { path = "ogun-sdk/src/sdk/ogun-driver-sdk" }
+ogun-ext-sdk       = { path = "ogun-sdk/src/sdk/ogun-ext-sdk" }
+ogun-host-sdk      = { path = "ogun-sdk/src/sdk/ogun-host-sdk" }
+ogun-kernel-sdk    = { path = "ogun-sdk/src/sdk/ogun-kernel-sdk" }
+ogun-module-sdk    = { path = "ogun-sdk/src/sdk/ogun-module-sdk" }
+ogun-pkg-sdk       = { path = "ogun-sdk/src/sdk/ogun-pkg-sdk" }
+ogun-plugin-sdk    = { path = "ogun-sdk/src/sdk/ogun-plugin-sdk" }
+ogun-svc-sdk       = { path = "ogun-sdk/src/sdk/ogun-svc-sdk" }
+
+# ── Internal: Ogun SDK — utilities ───────────────────────────────────────────
+ogun-libloader = { path = "ogun-sdk/src/utility/ogun-libloader" }
+ogun-logger    = { path = "ogun-sdk/src/utility/ogun-logger" }
+ogun-types     = { path = "ogun-sdk/src/utility/ogun-types" }
+
+# ── Internal: Ogun runtime ───────────────────────────────────────────────────
+ogun-bootloader = { path = "ogun-runtime/src/ogun-bootloader" }
+ogun-kernel     = { path = "ogun-runtime/src/ogun-kernel" }
+
+# ── Internal: Ogun devices ───────────────────────────────────────────────────
+ogun-cpu             = { path = "ogun-devices/src/ogun-cpu" }
+ogun-display-monitor = { path = "ogun-devices/src/ogun-display-monitor" }
+ogun-emulator        = { path = "ogun-devices/src/ogun-emulator" }
+ogun-hard-drive      = { path = "ogun-devices/src/ogun-hard-drive" }
+ogun-network-adapter = { path = "ogun-devices/src/ogun-network-adapter" }
+ogun-platform        = { path = "ogun-devices/src/ogun-platform" }
+ogun-uefi            = { path = "ogun-devices/src/ogun-uefi" }
+
+# # ── Internal: Ogun OS components — drivers & hosts ───────────────────────────
+# ogun-display-driver          = { path = "ogun-components/src/drivers/ogun-display-driver" }
+# ogun-tauri-display-driver    = { path = "ogun-components/src/drivers/ogun-tauri-display-driver" }
+# ogun-windows-host-driver     = { path = "ogun-components/src/drivers/ogun-windows-host-driver" }
+# ogun-desktop-host            = { path = "ogun-components/src/hosts/ogun-desktop-host" }
+# ogun-mobile-host             = { path = "ogun-components/src/hosts/ogun-mobile-host" }
+# ogun-server-host             = { path = "ogun-components/src/hosts/ogun-server-host" }
+# ogun-registry                = { path = "ogun-components/src/extensions/ogun-registry" }
+# ogun-host-service            = { path = "ogun-components/src/services/ogun-host-service" }
+# ogun-web-host                = { path = "ogun-components/src/services/ogun-web-host" }
+
+# # ── Internal: Ogun OS binaries ───────────────────────────────────────────────
+# ogun-app         = { path = "ogun-os/src/ogun-app" }
+# ogun-host-server = { path = "ogun-os/src/ogun-host-server" }
+
+# ── External dependencies (pinned across the workspace) ──────────────────────
+serde              = { version = "1",     features = ["derive"] }
+serde_json         = { version = "1" }
+tokio              = { version = "1",     features = ["full"] }
+thiserror          = { version = "2" }
+anyhow             = { version = "1" }
+log                = { version = "0.4" }
+tracing            = { version = "0.1" }
+tracing-subscriber = { version = "0.3",   features = ["env-filter"] }
+uuid               = { version = "1",     features = ["v4"] }
+tauri              = { version = "2",     features = ["protocol-asset"] }
+tauri-build        = { version = "2",     features = [] }
+tauri-plugin-shell   = { version = "2" }
+tauri-plugin-dialog  = { version = "2" }
+tauri-plugin-fs      = { version = "2" }
+tauri-plugin-process = { version = "2" }
+tauri-plugin-log     = { version = "2" }
+rusqlite           = { version = "0.32",  features = ["bundled"] }
+chrono             = { version = "0.4",   features = ["clock"] }
+regex              = { version = "1.12" }
+clap               = { version = "4",     features = ["derive"] }
+tokio-util         = { version = "0.7",   features = ["codec"] }
+bytes              = { version = "1" }
+sysinfo            = { version = "0.30" }
+toml               = { version = "0.8" }
+dirs               = { version = "6" }
+once_cell          = { version = "1" }
+parking_lot        = { version = "0.12" }
+
+# ── Workspace-level lint configuration ───────────────────────────────────────
+[workspace.lints.rust]
+unsafe_code          = "forbid"
+missing_docs         = "warn"
+unused_imports       = "warn"
+dead_code            = "warn"
+
+[workspace.lints.clippy]
+all      = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# Allow common patterns that are noisy but not harmful
+module_name_repetitions = "allow"
+must_use_candidate      = "allow"
+missing_errors_doc      = "allow"
+
+# ── Workspace metadata ────────────────────────────────────────────────────────
+[workspace.metadata]
+ogun-os-version     = "0.1.0-alpha.3"
+target-beta         = "0.1.0-beta"
+target-platforms    = ["windows-x64", "linux-x64", "macos-aarch64"]
+target-release-date = "2026-06-30"
+gitlab              = "https://gitlab.com/ogun-foundation/ogun"
+codeberg            = "https://codeberg.org/ogun-foundation/ogun"
+github              = "https://github.com/ogun-foundation/ogun"
+
+# ── Build profiles ────────────────────────────────────────────────────────────
 [profile.dev]
-opt-level = 0
+opt-level      = 0
+debug          = true
+incremental    = true
+codegen-units  = 256   # maximise parallelism during dev builds
 
 [profile.release]
-panic = "abort"
-codegen-units = 1
-lto = true
+opt-level      = 3
+panic          = "abort"
+codegen-units  = 1
+lto            = true
+strip          = "symbols"
+overflow-checks = false
+
+[profile.release-debug]
+inherits       = "release"
+strip          = "none"
+debug          = true   # symbols retained for profiling
+
+[profile.test]
+opt-level      = 1   # slightly optimised test builds for faster test runs
+debug          = true
