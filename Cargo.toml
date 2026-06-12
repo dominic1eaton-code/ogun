@@ -2,30 +2,30 @@
 resolver = "3"
 members = [
   # Shared protocol, storage, and support crates.
-  "bula/src/*",
-  "elegua/src/*",
-  "jaku/src/*",
-  "oya/src/*",
-  "rustydb/src/*",
+  # "bula/src/*",
+  # "elegua/src/*",
+  # "jaku/src/*",
+  # "oya/src/*",
+  # "rustydb",
 
   # Ogun OS workspaces pulled in through git submodules.
-  "ogun-apps/src/*",
-  "ogun-components/src/apps/tier-2/*",
-  "ogun-components/src/apps/tier-3/*",
-  "ogun-components/src/drivers/*",
-  "ogun-components/src/hosts/*",
-  "ogun-components/src/services/*",
-  "ogun-devices/src/*",
-  "ogun-os/src/ogun-app",
-  "ogun-os/src/ogun-host-server",
-  # "ogun-os/src/ogun-mobile",
-  "ogun-os/src/ogun-web",
-  "ogun-os/src/ogun-desktop/src-tauri",
-  "ogun-runtime/src/*",
-  "ogun-sdk/src/*",
+  # "ogun-apps/src/*",
+  # "ogun-components/src/apps/tier-2/*",
+  # "ogun-components/src/apps/tier-3/*",
+  # "ogun-components/src/drivers/*",
+  # "ogun-components/src/hosts/*",
+  # "ogun-components/src/services/*",
+  # "ogun-devices/src/*",
+  # "ogun-os/src/ogun-app",
+  # "ogun-os/src/ogun-host-server",
+  "ogun-os/src/ogun-mobile/src-tauri",
+  # "ogun-os/src/ogun-web",
+  # "ogun-os/src/ogun-desktop/src-tauri",
+  # "ogun-runtime/src/*",
+  # "ogun-sdk/src/*",
   # "ogun-tools/src/ogun-image-tool/src-tauri",
-  "ogun-tools/src/ogun-setup/src-tauri",
-  "ogun-experimental"
+  # "ogun-tools/src/ogun-setup/src-tauri",
+  # "ogun-experimental"
 ]
 
 [workspace.package]
