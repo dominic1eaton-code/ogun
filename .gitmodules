@@ -55,3 +55,6 @@
 [submodule "ogun-cyber"]
 	path = ogun-cyber
 	url = git@gitlab.com:ogun-foundation/ogun-cyber.git
+[submodule "kumbu"]
+	path = kumbu
+	url = git@gitlab.com:ogun-foundation/kumbu.git

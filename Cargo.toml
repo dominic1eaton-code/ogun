@@ -3,15 +3,16 @@
 # This file is the single source of truth for the entire ogun monorepo.
 # All git-submodule crate trees are listed here; comment a subtree out to
 # isolate it during development. Each submodule that contains its own nested
-# workspace (bula, elegua, jaku, oya, ogun-apps, …) is intentionally NOT
+# workspace (bula, elegua, jaku, kumbu, oya, ogun-apps, …) is intentionally NOT
 # declared as a workspace root here — Cargo's resolver="3" flattens them
 # through the members glob.
 #
 # Submodule layout (from .gitmodules):
 #   bula            — Bula UI abstraction protocol
-#   elegua          — Elegua capability-gated IPC protocol
-#   jaku            — Jaku tagging / metadata library
-#   oya             — Oya component lifecycle framework
+#   elegua          — Elegua message, capability-gated IPC protocol
+#   jaku            — Jaku devops library
+#   kumbu           — Kumbu logging library
+#   oya             — Oya  system design, component lifecycle framework
 #   rustydb         — RustyDB embedded SQLite layer
 #   ogun-sdk        — All SDK traits (app / component / device / driver / …)
 #   ogun-runtime    — Bootloader + kernel crates
@@ -36,6 +37,8 @@ members = [
   "bula/src/*",
   "elegua/src/*",
   "jaku/src/*",
+  "kumbu/src/kumbu-lib",
+  "kumbu/src/kumbu-gui/src-tauri",
   "oya/src/*",
   "rustydb",
 
@@ -50,12 +53,12 @@ members = [
   "ogun-devices/src/*",
 
   # # ── Ogun OS components ───────────────────────────────────────────────────
-  # "ogun-components/src/apps/tier-2/*",
-  # "ogun-components/src/apps/tier-3/*",
-  # "ogun-components/src/drivers/*",
-  # "ogun-components/src/extensions/*",
-  # "ogun-components/src/hosts/*",
-  # "ogun-components/src/services/*",
+  "ogun-components/src/apps/tier-2/*",
+  "ogun-components/src/apps/tier-3/*",
+  "ogun-components/src/drivers/*",
+  "ogun-components/src/extensions/*",
+  "ogun-components/src/hosts/*",
+  "ogun-components/src/services/*",
 
   # # ── Ogun Tier-4 apps ─────────────────────────────────────────────────────
   # "ogun-apps/src/*",
@@ -78,7 +81,7 @@ members = [
 
 # ── Shared package metadata ───────────────────────────────────────────────────
 [workspace.package]
-version       = "0.1.0-alpha.3"
+version       = "0.1.0-alpha.2.7-nightly-20260613T172044"
 edition       = "2024"
 rust-version  = "1.85"
 license       = "GPL-3.0"
@@ -101,6 +104,7 @@ categories    = ["os", "development-tools"]
 bula-lib   = { path = "bula/src/bula-lib" }
 elegua-lib = { path = "elegua/src/elegua-lib" }
 jaku-lib   = { path = "jaku/src/jaku-lib" }
+kumbu-lib   = { path = "kumbu/src/kumbu-lib" }
 oya-lib    = { path = "oya/src/oya-lib" }
 rustydb    = { path = "rustydb" }
 
@@ -160,7 +164,7 @@ log                = { version = "0.4" }
 tracing            = { version = "0.1" }
 tracing-subscriber = { version = "0.3",   features = ["env-filter"] }
 uuid               = { version = "1",     features = ["v4"] }
-tauri              = { version = "2",     features = ["protocol-asset"] }
+tauri              = { version = "2",     features = [] }
 tauri-build        = { version = "2",     features = [] }
 tauri-plugin-shell   = { version = "2" }
 tauri-plugin-dialog  = { version = "2" }
