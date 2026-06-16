@@ -58,3 +58,6 @@
 [submodule "kumbu"]
 	path = kumbu
 	url = git@gitlab.com:ogun-foundation/kumbu.git
+[submodule "bunzi"]
+	path = bunzi
+	url = git@gitlab.com:ogun-foundation/bunzi.git
