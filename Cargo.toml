@@ -51,6 +51,7 @@ members = [
 
   # ── Ogun devices ─────────────────────────────────────────────────────────
   "ogun-devices/src/*",
+  "ogun-emulator",
 
   # # ── Ogun OS components ───────────────────────────────────────────────────
   "ogun-components/src/apps/tier-2/*",
@@ -133,11 +134,11 @@ ogun-kernel     = { path = "ogun-runtime/src/ogun-kernel" }
 # ── Internal: Ogun devices ───────────────────────────────────────────────────
 ogun-cpu             = { path = "ogun-devices/src/ogun-cpu" }
 ogun-display-monitor = { path = "ogun-devices/src/ogun-display-monitor" }
-ogun-emulator        = { path = "ogun-devices/src/ogun-emulator" }
 ogun-hard-drive      = { path = "ogun-devices/src/ogun-hard-drive" }
 ogun-network-adapter = { path = "ogun-devices/src/ogun-network-adapter" }
 ogun-platform        = { path = "ogun-devices/src/ogun-platform" }
 ogun-uefi            = { path = "ogun-devices/src/ogun-uefi" }
+ogun-emulator        = { path = "ogun-emulator" }
 
 # # ── Internal: Ogun OS components — drivers & hosts ───────────────────────────
 # ogun-display-driver          = { path = "ogun-components/src/drivers/ogun-display-driver" }
@@ -160,7 +161,7 @@ serde_json         = { version = "1" }
 tokio              = { version = "1",     features = ["full"] }
 thiserror          = { version = "2" }
 anyhow             = { version = "1" }
-log                = { version = "0.4" }
+log                = { version = "0.4.33" }
 tracing            = { version = "0.1" }
 tracing-subscriber = { version = "0.3",   features = ["env-filter"] }
 uuid               = { version = "1",     features = ["v4"] }
@@ -171,17 +172,18 @@ tauri-plugin-dialog  = { version = "2" }
 tauri-plugin-fs      = { version = "2" }
 tauri-plugin-process = { version = "2" }
 tauri-plugin-log     = { version = "2" }
-rusqlite           = { version = "0.32",  features = ["bundled"] }
+rusqlite           = { version = "0.40",  features = ["bundled"] }
 chrono             = { version = "0.4",   features = ["clock"] }
 regex              = { version = "1.12" }
 clap               = { version = "4",     features = ["derive"] }
 tokio-util         = { version = "0.7",   features = ["codec"] }
-bytes              = { version = "1" }
-sysinfo            = { version = "0.30" }
-toml               = { version = "0.8" }
+bytes              = { version = "1.12" }
+sysinfo            = { version = "0.39" }
+toml               = { version = "1.1.2" }
 dirs               = { version = "6" }
 once_cell          = { version = "1" }
 parking_lot        = { version = "0.12" }
+hex             = { version = "0.4"}
 
 # ── Workspace-level lint configuration ───────────────────────────────────────
 [workspace.lints.rust]
