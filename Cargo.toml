@@ -82,7 +82,7 @@ members = [
 
 # ── Shared package metadata ───────────────────────────────────────────────────
 [workspace.package]
-version       = "0.1.0-alpha.2.7-nightly-20260627T004539"
+version       = "0.1.0-alpha.2.7-nightly-20260627T041335"
 edition       = "2024"
 rust-version  = "1.85"
 license       = "GPL-3.0"
